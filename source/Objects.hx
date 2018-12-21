@@ -8,6 +8,8 @@ class Mobile extends FlxSprite {
 	var direction:FlxPoint = new FlxPoint(0, 0);
 	var speed:Int = 30;
 
+	public var client_id:Int;
+
 	public function new(x:Float, y:Float, graphic:FlxGraphicAsset) {
 		super(x, y);
 		this.loadGraphic(graphic, true, 16, 16);
@@ -38,5 +40,14 @@ class Mobile extends FlxSprite {
 				this.direction.set(0, 0);
 		}
 		this.animation.play(d);
+	}
+
+	public function data() {
+		return { client_id: client_id, x: x, y: y };
+	}
+
+	public function sync(data) {
+		this.x = data.x;
+		this.y = data.y;
 	}
 }
