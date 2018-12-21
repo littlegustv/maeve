@@ -27,7 +27,7 @@ class Main {
     });
     
     server.events.on("PlayerData", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
-      trace('got PLAYER UPDATE yay');
+      // trace('got PLAYER UPDATE yay');
       server.broadcast( "PlayerUpdate", data );
     });
 

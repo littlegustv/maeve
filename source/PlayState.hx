@@ -1,10 +1,8 @@
 /*
 
-multiplayer JOIN:
-- 1. create player (randomx, randomy)
-- 2. connect to server
-- 3. send 'join' event to server with client_id, x, y, object_id
-- 4. ON 'join', if client_id != my.client_id, create NPC
+multiplayer setup:
+ - need EVERYONE to JOIN/REGISTER before update events start firing
+ - perhaps need menustate to handle this?
 
 */
 
@@ -22,7 +20,9 @@ class PlayState extends FlxState
 {
 	var player:Mobile;
 	var enemies:FlxTypedGroup<Mobile>;
+	var buttons:FlxTypedGroup<FlxSprite>;
   
+  var registered:Bool = false;
   var client:mphx.client.Client;
   // var client_id:Int;
   var connection_attempts:Int = 0;
@@ -30,26 +30,35 @@ class PlayState extends FlxState
 	override public function create():Void
 	{
 		super.create();
+		FlxG.autoPause = false;
+		FlxG.worldBounds.set(-1000, -1000, 3000, 3000);
 
 		var title = new FlxText(0, 0, 0, "maeve.", 64);
 		title.screenCenter();
 		add(title);
 
+		buttons = new FlxTypedGroup();
+		add(buttons);
+
 		player = new Mobile(FlxG.random.int(0, FlxG.width), FlxG.random.int(0, FlxG.height), AssetPaths.player__png);
 		player.move('idle');
+		FlxG.camera.follow(player);
 		add(player);
 
 		enemies = new FlxTypedGroup();
 		add(enemies);
 
-		// var enemy = new Mobile(0, 80, AssetPaths.npc__png);
-		// enemy.move('right');
-		// add(enemy);
+		var button = new FlxSprite(160, 160);
+		button.loadGraphic(AssetPaths.button__png, true, 16, 16);
+		button.animation.add("off", [0]);
+		button.animation.add("on", [1]);
+		button.animation.play("off");
+		buttons.add(button);
 
     client = new mphx.client.Client("192.168.1.22", 8000);
     // trace(client);
     client.onConnectionError = function (error:Dynamic) {
-      trace("On Connection Error:", error, connection_attempts);
+      trace("On Connection Error:", error.keys, connection_attempts);
       connection_attempts += 1;
       if (connection_attempts <= 10) {
         client.connect();
@@ -67,13 +76,14 @@ class PlayState extends FlxState
     client.events.on("Registered", function (data) {
     	trace("Registered", data.id);
     	player.client_id = data.id;
+    	// registered = true;
     	client.send("Join", {client_id: player.client_id, x: player.x, y: player.y});
     });
 
     client.events.on("Join", function (data) {
     	trace('join');
-    	if (player.client_id != null && player.client_id != data.client_id) {
-				var enemy = new Mobile(data.x, data.y, AssetPaths.npc__png);
+    	if (player.client_id != data.client_id) {
+				var enemy = new Mobile(data.x, data.y, AssetPaths.player__png);
 				enemy.client_id = data.client_id;
 				enemies.add(enemy);
 				trace('new');   		
@@ -99,7 +109,7 @@ class PlayState extends FlxState
 	    		}
 	    	}
 	    	if (found == false) {
-	    		var enemy = new Mobile(data.x, data.y, AssetPaths.npc__png);
+	    		var enemy = new Mobile(data.x, data.y, AssetPaths.player__png);
 	    		enemy.client_id = data.client_id;
 					enemies.add(enemy);
 					trace('new (during sync)');   
@@ -128,12 +138,48 @@ class PlayState extends FlxState
 			player.move('idle');
 		}
 		if (FlxG.keys.pressed.SPACE) {
-			client.send("PlayerData", player.data());
+			registered = true;
 			// trace('what is happening', player.data());
 		} 
 		#end
 
-		if ( player != null && client.isConnected() ) {
+		#if (mobile || web)
+		for (touch in FlxG.touches.list)
+		{
+		    // if (touch.justPressed) {}
+		    if (touch.pressed) {
+		    	if (touch.screenY > 2 * FlxG.height / 3) {
+		    		player.move("down");
+		    	} else if (touch.screenY < FlxG.height / 3) {
+		    		player.move("up");
+		    	} else if (touch.screenX > 2 * FlxG.width / 3) {
+		    		player.move("right");
+		    	} else if (touch.screenX < FlxG.width / 3) {
+		    		player.move("left");
+		    	} else {
+		    		registered = true;
+		    	}
+		    }
+		    // if (touch.justReleased) {}
+		}
+		#end
+
+		// collisions
+
+		FlxG.overlap(player, buttons, function (player, button) {
+			button.animation.play("on");
+		});
+
+		FlxG.overlap(enemies, buttons, function (enemy, button) {
+			button.animation.play("on");
+		});
+
+		FlxG.collide(player, enemies, function (player, enemy) {
+			trace('collided with enemy!');
+		});
+
+		if ( registered ) {
+			client.send("PlayerData", player.data());
 		}
 	}
 }

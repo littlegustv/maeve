@@ -5,8 +5,9 @@ import flixel.math.FlxPoint;
 import flixel.system.FlxAssets;
 
 class Mobile extends FlxSprite {
-	var direction:FlxPoint = new FlxPoint(0, 0);
+	// var direction:FlxPoint = new FlxPoint(0, 0);
 	var speed:Int = 30;
+	var movement:String = "idle";
 
 	public var client_id:Int;
 
@@ -18,36 +19,37 @@ class Mobile extends FlxSprite {
 		this.animation.add("down", [2, 3], 6, true);
 		this.animation.add("right", [6, 7], 6, true);
 		this.animation.add("idle", [2], 6, true);		
+		this.move("idle");
 	}
 
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
-
-		this.velocity.set(this.direction.x * this.speed, this.direction.y * this.speed);
 	}
 
 	public function move(d:String) {
-		switch (d) {
+		this.movement = d;
+		switch (this.movement) {
 			case "up":
-				this.direction.set(0, -1);
+				this.velocity.set(0, -1 * this.speed);
 			case "down":
-				this.direction.set(0, 1);
+				this.velocity.set(0, 1 * this.speed);
 			case "right":
-				this.direction.set(1, 0);
+				this.velocity.set(1 * this.speed, 0);
 			case "left":
-				this.direction.set(-1, 0);
+				this.velocity.set(-1 * this.speed, 0);
 			case "idle":
-				this.direction.set(0, 0);
+				this.velocity.set(0, 0);
 		}
-		this.animation.play(d);
+		this.animation.play(this.movement);
 	}
 
 	public function data() {
-		return { client_id: client_id, x: x, y: y };
+		return { client_id: client_id, x: x, y: y, movement: movement };
 	}
 
 	public function sync(data) {
 		this.x = data.x;
 		this.y = data.y;
+		this.move(data.movement);
 	}
 }
