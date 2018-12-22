@@ -183,7 +183,7 @@ class PlayState extends FlxState
 			trace('collided with enemy!');
 		});
 
-		if ( registered ) {
+		if ( true ) {
 			client.send("PlayerData", player.data());
 		}
 	}
