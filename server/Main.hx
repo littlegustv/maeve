@@ -5,8 +5,10 @@ class Main {
   var rooms:Map<String, mphx.server.room.Room>;
   public function new ()
   {
+    var HOST = "127.0.0.1";
+    var PORT = 8000;
 
-    server = new mphx.server.impl.Server("127.0.0.1", 8000);
+    server = new mphx.server.impl.Server( HOST, PORT );
 
     rooms = new Map<String, mphx.server.room.Room>();
     
@@ -53,6 +55,15 @@ class Main {
 
     server.events.on("JoinRoom", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
       if ( rooms.exists( data.room ) ) {
+        sender.putInRoom( rooms[data.room] );
+        sender.send("JoinedRoom");
+      }
+    });
+
+    server.events.on( "CreateRoom", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
+      if ( !rooms.exists( data.room ) ) {
+        rooms[data.room] = new mphx.server.room.Room();
+        server.rooms.push( rooms[data.room] );
         sender.putInRoom( rooms[data.room] );
         sender.send("JoinedRoom");
       }
