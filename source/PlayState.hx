@@ -27,6 +27,11 @@ class PlayState extends FlxState
   // var client_id:Int;
   var connection_attempts:Int = 0;
 
+  public function new(client:mphx.client.Client) {
+  	super();
+  	this.client = client;
+  }
+
 	override public function create():Void
 	{
 		super.create();
@@ -55,29 +60,29 @@ class PlayState extends FlxState
 		button.animation.play("off");
 		buttons.add(button);
 
-    client = new mphx.client.Client("192.168.1.22", 8000);
+    // client = new mphx.client.Client("192.168.1.22", 8000);
     // trace(client);
-    client.onConnectionError = function (error:Dynamic) {
-      trace("On Connection Error:", error.keys, connection_attempts);
-      connection_attempts += 1;
-      if (connection_attempts <= 10) {
-        client.connect();
-      }
-    };
-    client.onConnectionClose = function (error:Dynamic) {
-      trace("Connection Closed:", error);
-    };
-    client.onConnectionEstablished = function () {
-      trace('registering??');
-      client.send("Register", "HELLO!!!");
-    };
-    client.connect();
+    // client.onConnectionError = function (error:Dynamic) {
+    //   trace("On Connection Error:", error.keys, connection_attempts);
+    //   connection_attempts += 1;
+    //   if (connection_attempts <= 10) {
+    //     client.connect();
+    //   }
+    // };
+    // client.onConnectionClose = function (error:Dynamic) {
+    //   trace("Connection Closed:", error);
+    // };
+    // client.onConnectionEstablished = function () {
+    //   trace('registering??');
+    // };
+    // client.connect();
+    client.send("Register", "HELLO!!!");
 
     client.events.on("Registered", function (data) {
     	trace("Registered", data.id);
     	player.client_id = data.id;
     	// registered = true;
-    	client.send("Join", {client_id: player.client_id, x: player.x, y: player.y});
+	  	client.send("Join", {client_id: player.client_id, x: player.x, y: player.y});
     });
 
     client.events.on("Join", function (data) {
@@ -90,14 +95,14 @@ class PlayState extends FlxState
     	}
     });
 
-    client.events.on( "Leave", function (data) {
-    	trace('leave');
-    	for (e in enemies) {
-    		if (e.client_id == data.client_id) {
-    			enemies.remove(e);
-    		}
-    	}
-    });
+    // client.events.on( "Leave", function (data) {
+    // 	trace('leave');
+    // 	for (e in enemies) {
+    // 		if (e.client_id == data.client_id) {
+    // 			enemies.remove(e);
+    // 		}
+    // 	}
+    // });
 
     client.events.on( "PlayerUpdate", function (data) {
     	if (data.client_id != player.client_id) {
