@@ -6,7 +6,7 @@ class Main {
   public function new ()
   {
 
-    server = new mphx.server.impl.Server("192.168.1.22",8000);
+    server = new mphx.server.impl.Server("127.0.0.1", 8000);
 
     rooms = new Map<String, mphx.server.room.Room>();
     

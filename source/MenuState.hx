@@ -24,7 +24,7 @@ class MenuState extends FlxState
 		var instructions = new FlxText(0, 0, 0, "Rooms:", 8);
 		add(instructions);
 
-		client = new mphx.client.Client("192.168.1.22", 8000);
+		client = new mphx.client.Client("127.0.0.1", 8000);
     client.onConnectionError = function (error:Dynamic) {
       trace("On Connection Error:", error.keys, connection_attempts);
       connection_attempts += 1;
