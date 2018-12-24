@@ -14,6 +14,15 @@ import flixel.FlxSprite;
 import flixel.FlxG;
 import flixel.group.FlxGroup;
 
+// Tilemap stuff
+
+import flixel.addons.editors.tiled.TiledMap;
+import flixel.addons.editors.tiled.TiledTileLayer;
+import flixel.addons.editors.tiled.TiledObjectLayer;
+import flixel.addons.editors.tiled.TiledObject;
+import flixel.tile.FlxTilemap;
+import flixel.tile.FlxBaseTilemap;
+
 import Objects;
 
 class PlayState extends FlxState
@@ -27,6 +36,9 @@ class PlayState extends FlxState
   // var client_id:Int;
   var connection_attempts:Int = 0;
 
+  var map:TiledMap;
+  var walls:FlxTilemap;
+
   public function new(client:mphx.client.Client) {
   	super();
   	this.client = client;
@@ -38,9 +50,23 @@ class PlayState extends FlxState
 		FlxG.autoPause = false;
 		FlxG.worldBounds.set(-1000, -1000, 3000, 3000);
 
+		map = new TiledMap(AssetPaths.main__tmx);
+
+		// handle tile image borders/spacing
+
+		var ground = new FlxTilemap();
+		ground.loadMapFromArray( cast( map.getLayer("Ground"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
+		ground.screenCenter();
+		add(ground);
+
 		var title = new FlxText(0, 0, 0, "maeve.", 64);
 		title.screenCenter();
 		add(title);
+
+		walls = new FlxTilemap();
+		walls.loadMapFromArray( cast( map.getLayer("Solids"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
+		walls.screenCenter();
+		add(walls);
 
 		buttons = new FlxTypedGroup();
 		add(buttons);
@@ -182,6 +208,8 @@ class PlayState extends FlxState
 		FlxG.collide(player, enemies, function (player, enemy) {
 			trace('collided with enemy!');
 		});
+
+		FlxG.collide(player, walls);
 
 		if ( true ) {
 			client.send("PlayerData", player.data());

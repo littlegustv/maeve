@@ -5,7 +5,7 @@ class Main {
   var rooms:Map<String, mphx.server.room.Room>;
   public function new ()
   {
-    var HOST = "127.0.0.1";
+    var HOST = "192.168.1.22";
     var PORT = 8000;
 
     server = new mphx.server.impl.Server( HOST, PORT );
