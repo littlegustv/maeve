@@ -6,7 +6,7 @@ import flixel.system.FlxAssets;
 
 class Mobile extends FlxSprite {
 	// var direction:FlxPoint = new FlxPoint(0, 0);
-	var speed:Int = 30;
+	var speed:Int = 64;
 	var movement:String = "idle";
 
 	public var client_id:Int;
@@ -14,10 +14,10 @@ class Mobile extends FlxSprite {
 	public function new(x:Float, y:Float, graphic:FlxGraphicAsset) {
 		super(x, y);
 		this.loadGraphic(graphic, true, 16, 16);
-		this.animation.add("up", [4, 5], 6, true);
-		this.animation.add("left", [0, 1], 6, true);
-		this.animation.add("down", [2, 3], 6, true);
-		this.animation.add("right", [6, 7], 6, true);
+		this.animation.add("up", [4, 5], 9, true);
+		this.animation.add("left", [0, 1], 9, true);
+		this.animation.add("down", [2, 3], 9, true);
+		this.animation.add("right", [6, 7], 9, true);
 		this.animation.add("idle", [2], 6, true);		
 		this.move("idle");
 	}
