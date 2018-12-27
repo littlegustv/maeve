@@ -20,6 +20,8 @@ import flixel.addons.editors.tiled.TiledMap;
 import flixel.addons.editors.tiled.TiledTileLayer;
 import flixel.addons.editors.tiled.TiledObjectLayer;
 import flixel.addons.editors.tiled.TiledObject;
+import flixel.addons.display.FlxStarField;
+
 import flixel.tile.FlxTilemap;
 import flixel.tile.FlxBaseTilemap;
 
@@ -54,10 +56,14 @@ class PlayState extends FlxState
 
 		// handle tile image borders/spacing
 
-		var ground = new FlxTilemap();
-		ground.loadMapFromArray( cast( map.getLayer("Ground"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
-		ground.screenCenter();
-		add(ground);
+		// var ground = new FlxTilemap();
+		// ground.loadMapFromArray( cast( map.getLayer("Ground"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
+		// ground.screenCenter();
+		// add(ground);
+
+		var stars = new FlxStarField2D(0, 0, FlxG.width, FlxG.height, 100);
+		stars.scrollFactor.set(0);
+	    add(stars);
 
 		var title = new FlxText(0, 0, 0, "maeve.", 64);
 		title.screenCenter();
