@@ -1,1 +1,834 @@
-{}
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"swit",
+				"switchState"
+			],
+			[
+				"defaul",
+				"defaultSoundGroup"
+			],
+			[
+				"FlxUiButt",
+				"FlxUIButtonToggle\tflixel.addons.ui"
+			],
+			[
+				"FlxUIButto",
+				"FlxUIButtonToggle\tflixel.addons.ui"
+			],
+			[
+				"layer",
+				"layer_names"
+			],
+			[
+				"P",
+				"PINGPONG"
+			],
+			[
+				"twee",
+				"TWEENS"
+			],
+			[
+				"start",
+				"starting_levels"
+			],
+			[
+				"FlxSpi",
+				"FlxSpriteUtil"
+			],
+			[
+				"pro",
+				"properties"
+			],
+			[
+				"parent",
+				"parent_guardian_1_email"
+			],
+			[
+				"substr",
+				"substr_compare"
+			],
+			[
+				"re",
+				"reigndeer"
+			],
+			[
+				"e",
+				"entities"
+			],
+			[
+				"de",
+				"detection_radius"
+			],
+			[
+				"po",
+				"getPosition(...)\tflixel.math.FlxPoint"
+			],
+			[
+				"boss",
+				"boss__png\tString"
+			],
+			[
+				"tenf_do_",
+				"tenf_do_book_links"
+			],
+			[
+				"proj",
+				"projectile"
+			],
+			[
+				"FlxTile",
+				"FlxTilemap\tflixel.tile"
+			],
+			[
+				"strt",
+				"strtolower"
+			],
+			[
+				"title",
+				"title_sort"
+			],
+			[
+				"bi",
+				"bibliography"
+			],
+			[
+				"all_",
+				"all_books_query"
+			],
+			[
+				"search_docum",
+				"search_documents_published"
+			],
+			[
+				"search_",
+				"search_documents_published"
+			],
+			[
+				"search_doc",
+				"search_documents_published"
+			],
+			[
+				"all_sear",
+				"all_searchable_document_ids"
+			],
+			[
+				"read_d",
+				"read_documents_query"
+			],
+			[
+				"hide_from_",
+				"hide_from_read_the_works"
+			],
+			[
+				"filter",
+				"filtered_search_documents"
+			],
+			[
+				"books_",
+				"books_titles"
+			],
+			[
+				"qua",
+				"quadInOut( t : Float )\tFloat"
+			],
+			[
+				"main",
+				"mainmenu(  )\tVoid"
+			],
+			[
+				"swi",
+				"switchState(...)\tVoid"
+			],
+			[
+				"u",
+				"openURL(...)\tVoid"
+			],
+			[
+				"center",
+				"centerOffsets(...)\tVoid"
+			],
+			[
+				"angle",
+				"angleBetween(...)\tFloat"
+			],
+			[
+				"pos",
+				"setPosition(...)\tVoid"
+			],
+			[
+				"wi",
+				"fullWidth\tInt"
+			],
+			[
+				"load",
+				"loaded_tilemaps\tArray<flixel.addons.editors.tiled.TiledMap>"
+			],
+			[
+				"fl",
+				"parseFloat( x : String )\tFloat"
+			],
+			[
+				"tile",
+				"tileWidth\tInt"
+			],
+			[
+				"ti",
+				"tileWidth\tInt"
+			],
+			[
+				"dist",
+				"distanceBetween(...)\tInt"
+			],
+			[
+				"quad",
+				"quadInOut( t : Float )\tFloat"
+			],
+			[
+				"spikes",
+				"spikes__png\tString"
+			],
+			[
+				"bib",
+				"bibliographies"
+			],
+			[
+				"bibl",
+				"bibliography-tags"
+			],
+			[
+				"all_search",
+				"all_searchable_document_ids"
+			],
+			[
+				"all",
+				"all_search_documents"
+			],
+			[
+				"query",
+				"query_string"
+			],
+			[
+				"search",
+				"search_targets"
+			],
+			[
+				"post_tit",
+				"post_titles_by_post_id"
+			],
+			[
+				"highlight",
+				"highlighted_snippet"
+			],
+			[
+				"m",
+				"maxVelocity\tflixel.math.FlxPoint"
+			],
+			[
+				"overl",
+				"overlapsWithCallback(...)\tBool"
+			],
+			[
+				"pushme",
+				"pushme__png\tString"
+			],
+			[
+				"distanceTo",
+				"distanceToPoint(...)\tInt"
+			],
+			[
+				"done",
+				"doneFiltering"
+			],
+			[
+				"bir",
+				"bird__png\tString"
+			],
+			[
+				"br",
+				"breaks__png\tString"
+			],
+			[
+				"FlxSprite",
+				"FlxSpriteUtil\tclass"
+			],
+			[
+				"ind",
+				"indicator__png\tString"
+			],
+			[
+				"switch",
+				"switch__png\tString"
+			],
+			[
+				"keys",
+				"keys_collected"
+			],
+			[
+				"t",
+				"type"
+			],
+			[
+				"prop",
+				"properties\tflixel.addons.editors.tiled.TiledPropertySet"
+			],
+			[
+				"el",
+				"elapsed"
+			],
+			[
+				"exit",
+				"exit_fail__wav\tString"
+			],
+			[
+				"ju",
+				"jump__wav\tString"
+			],
+			[
+				"key",
+				"keys_icon"
+			],
+			[
+				"k",
+				"key__png\tString"
+			],
+			[
+				"TO",
+				"TO_RAD\tFloat"
+			],
+			[
+				"Ra",
+				"RatioScaleMode\tclass"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"haxe s",
+				"Set Syntax: Haxe"
+			],
+			[
+				"packa",
+				"Package Control: List Packages"
+			],
+			[
+				"list pa",
+				"Package Control: List Unmanaged Packages"
+			],
+			[
+				"syntax h",
+				"Set Syntax: Haxe"
+			],
+			[
+				"update",
+				"Package Control: Upgrade/Overwrite All Packages"
+			],
+			[
+				"haxe",
+				"Haxe: Restart Server"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"package",
+				"Package Control: Remove Package"
+			],
+			[
+				"haxelib",
+				"Haxelib: List all"
+			],
+			[
+				"synt",
+				"Set Syntax: Haxe"
+			],
+			[
+				"syntax",
+				"Set Syntax: Haxe"
+			],
+			[
+				"synt json",
+				"Set Syntax: JSON"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"pack",
+				"Install Package Control"
+			],
+			[
+				"synt hax",
+				"Set Syntax: Haxe"
+			],
+			[
+				"syntax ha",
+				"Set Syntax: Haxe"
+			],
+			[
+				"synta ",
+				"Set Syntax: Haxe"
+			],
+			[
+				"syn",
+				"Set Syntax: Haxe"
+			],
+			[
+				"enable ",
+				"Package Control: Enable Package"
+			],
+			[
+				"disab",
+				"Package Control: Disable Package"
+			],
+			[
+				"packag",
+				"Package Control: List Packages"
+			],
+			[
+				"set syntax hax",
+				"Set Syntax: Haxe"
+			],
+			[
+				"synta",
+				"Set Syntax: Haxe"
+			],
+			[
+				"packag enabl",
+				"Package Control: Enable Package"
+			],
+			[
+				"previe",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"preview",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"synta hax",
+				"Set Syntax: Haxe"
+			],
+			[
+				"pack insta",
+				"Package Control: Install Package"
+			],
+			[
+				"pACK",
+				"Install Package Control"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 157.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/e1sif/haxelib/flixel/4,4,2",
+		"/home/e1sif/haxelib/flixel-addons/2,6,0",
+		"/usr/lib/haxe/std"
+	],
+	"file_history":
+	[
+		"/C/Users/Benny/Haxe/spiderspiderspider/source/DiedState.hx",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/wp-config.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/eStore_email.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/eStore_email 2.php",
+		"/C/Users/Benny/Downloads/minecraft-server.bat",
+		"/C/Program Files (x86)/Microsoft Visual Studio 14.0/Common7/Tools/vsvars32.bat",
+		"/C/Users/Benny/Haxe/spiderspiderspider/Project.xml",
+		"/C/Users/Benny/Haxe/spiderspiderspider/source/MenuState.hx",
+		"/C/Users/Benny/Haxe/spiderspiderspider/source/OptionsMenu.hx",
+		"/C/Users/Benny/.lime/config.xml",
+		"/C/Users/Benny/.hxcpp_config.xml",
+		"/C/Users/Benny/Haxe/spiderspiderspider/assets/xml/menustate.xml",
+		"/C/Users/Benny/Haxe/spiderspiderspider/assets/xml/died.xml",
+		"/C/Users/Benny/lime-config.xml.bak.xml",
+		"/C/Users/Benny/.hxcpp_config.xml.bak.xml",
+		"/C/Users/Benny/.hxcpp_config.xml.bak",
+		"/C/Users/Benny/Haxe/spiderspiderspider/.gitignore",
+		"/C/Users/Benny/Haxe/spiderspiderspider/assets/xml/options.xml",
+		"/C/Users/Benny/Haxe/spiderspiderspider/source/PlayState.hx",
+		"/C/Users/Benny/Haxe/spiderspiderspider/assets/xml/popup.xml",
+		"/C/Users/Benny/Haxe/spiderspiderspider/assets/xml/definitions.xml",
+		"/C/Users/Benny/Haxe/spiderspiderspider/assets/data/start.tmx",
+		"/C/Users/Benny/Haxe/spiderspiderspider/assets/data/tutorial.tmx",
+		"/C/Users/Benny/Documents/prototype.txt",
+		"/C/Users/Benny/Haxe/spiderspiderspider/source/Main.hx",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/functions.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/taxonomy-lecturealbum.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/style.css",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/single-lectures.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/content-lectures.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/page-lectures.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/taxonomy-lectures.php",
+		"/C/Users/Benny/Haxe/spiderspiderspider/assets/xml/playstate.xml",
+		"/C/Users/Benny/Haxe/spiderspiderspider/spiderspiderspider.sublime-workspace",
+		"/C/Users/Benny/AppData/Roaming/Sublime Text 3/Packages/User/Haxe.sublime-settings",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/applicant.css",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/single-applicant.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/single-default.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/single 2.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/single.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/single-applicant 2.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/applicant-template.php",
+		"/C/Users/Benny/Haxe/spiderspiderspider/spiderspiderspider.sublime-project",
+		"/C/Users/Benny/SDBM/.docker-environment",
+		"/C/Users/Benny/Downloads/deploy.md",
+		"/C/Users/Benny/Android/android-ndk-r18b/README.md",
+		"/C/Users/Benny/Documents/Concordia/Fall 2018/Cart 211/Exercises/cart211_class3/css/style.css",
+		"/C/Users/Benny/Documents/Concordia/Fall 2018/Cart 211/Exercises/cart211_class3/practice.html",
+		"/C/Users/Benny/Documents/Concordia/Fall 2018/Cart 211/Exercises/cart211_class3/index.html",
+		"/C/Users/Benny/Documents/Concordia/Fall 2018/Cart 211/Exercises/cart211_class3/readings.html",
+		"/C/Users/Benny/Documents/Concordia/Fall 2018/Cart 211/Exercises/cart211_class3/projects.html",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/index 3.html",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/main.js",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/index.html",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/index 2.html",
+		"/C/Users/Benny/Documents/cart351final.todo",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/header.php",
+		"/C/Users/Benny/10f/pluginupdates.rb",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/archive-portfolio.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/footer.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/content.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/content-page.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/page.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/save.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/clear.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/index.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/week9.html",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/week8.html",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/week7.html",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/proposal.html",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/data.json",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/page-bibliography.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/app.css",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/content-sidebar.css",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/sidebar-content.css",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/custom-header.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/home.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/sidebar.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/tenf-book-buttons.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/custom-search-helper.js",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/content-erh_book.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/single-erh_book.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/taxonomy-bookcategory.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/page-booksbyerh.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/page-booksbyerh-grid.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/template-search.php",
+		"/C/Users/Benny/AppData/Local/Temp/fz3temp-2/page-home.php",
+		"/C/Users/Benny/Downloads/index.html",
+		"/C/Users/Benny/Haxe/spiderspiderspider/todo.todo",
+		"/tmp/fz3temp-2/template-search.php",
+		"/tmp/fz3temp-2/template-results.php",
+		"/tmp/fz3temp-2/taxonomy-bookcategory.php",
+		"/tmp/fz3temp-2/functions.php",
+		"/tmp/fz3temp-2/page-bibliography.php",
+		"/tmp/fz3temp-2/style.css",
+		"/home/e1sif/Work/10f/time/TimeDog/config/database.yml",
+		"/tmp/fz3temp-2/custom-search-helper.js",
+		"/tmp/fz3temp-2/tenf-book-buttons.php",
+		"/tmp/fz3temp-2/taxonomy-bookcategory-list.php",
+		"/tmp/fz3temp-2/page-booksbyerh.php",
+		"/tmp/fz3temp-2/page-booksbyerh-grid.php",
+		"/tmp/fz3temp-2/content-erh_book.php",
+		"/tmp/fz3temp-2/single.php",
+		"/tmp/fz3temp-2/single-erh_book.php",
+		"/home/e1sif/Haxe/SpidersSpidersSpiders/icon.svg",
+		"/home/e1sif/Haxe/SpidersSpidersSpiders/assets/xml/menustate.xml",
+		"/home/e1sif/Haxe/SpidersSpidersSpiders/source/MenuState.hx",
+		"/home/e1sif/Haxe/SpidersSpidersSpiders/source/Main.hx",
+		"/tmp/fz3temp-2/index.html",
+		"/home/e1sif/Haxe/SpidersSpidersSpiders/source/PlayState.hx",
+		"/tmp/fz3temp-2/week3.html",
+		"/tmp/fz3temp-2/week2.html",
+		"/tmp/fz3temp-2/week3.md",
+		"/tmp/fz3temp-2/template-test.php",
+		"/home/e1sif/Concordia/September 2018/Cart 351/github/style.css",
+		"/home/e1sif/Concordia/September 2018/Cart 351/github/index.html",
+		"/home/e1sif/Concordia/September 2018/Cart 351/index.html",
+		"/home/e1sif/Concordia/September 2018/Cart 351/style.css",
+		"/home/e1sif/.cache/.fr-sFvvXk/index.html",
+		"/home/e1sif/Work/10f/erhfund/for_xml_import.rb",
+		"/home/e1sif/Haxe/SpidersSpidersSpiders/assets/data/game.tmx",
+		"/home/e1sif/Haxe/SpidersSpidersSpiders/source/Player.hx",
+		"/home/e1sif/Downloads/titles.xml",
+		"/home/e1sif/Work/10f/pluginupdates.rb",
+		"/tmp/fz3temp-2/style-mobile.css",
+		"/tmp/fz3temp-2/front-page.php",
+		"/tmp/fz3temp-2/home.php",
+		"/tmp/fz3temp-2/custom-filter.js"
+	],
+	"find":
+	{
+		"height": 29.0
+	},
+	"find_in_files":
+	{
+		"height": 107.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 29.0
+	},
+	"input":
+	{
+		"height": 41.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "Maeve.sublime-project",
+	"replace":
+	{
+		"height": 54.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"state",
+				"source\\DiedState.hx"
+			],
+			[
+				"pro",
+				"Project.xml"
+			],
+			[
+				"main",
+				"source\\Main.hx"
+			],
+			[
+				"gitig",
+				".gitignore"
+			],
+			[
+				"options",
+				"source\\OptionsMenu.hx"
+			],
+			[
+				"menustate",
+				"source\\MenuState.hx"
+			],
+			[
+				"menust",
+				"assets\\xml\\menustate.xml"
+			],
+			[
+				"opti",
+				"assets\\xml\\options.xml"
+			],
+			[
+				"popu",
+				"assets\\xml\\popup.xml"
+			],
+			[
+				"menusta",
+				"source\\MenuState.hx"
+			],
+			[
+				"menus",
+				"assets\\xml\\menustate.xml"
+			],
+			[
+				"menu",
+				"source\\MenuState.hx"
+			],
+			[
+				"men",
+				"source\\MenuState.hx"
+			],
+			[
+				"defin",
+				"assets\\xml\\definitions.xml"
+			],
+			[
+				"opt",
+				"source\\OptionsMenu.hx"
+			],
+			[
+				"option",
+				"assets\\xml\\options.xml"
+			],
+			[
+				"start",
+				"assets\\data\\start.tmx"
+			],
+			[
+				"tutori",
+				"assets\\data\\tutorial.tmx"
+			],
+			[
+				"gitign",
+				".gitignore"
+			],
+			[
+				"proj",
+				"Project.xml"
+			],
+			[
+				"main.",
+				"source\\Main.hx"
+			],
+			[
+				"playstate",
+				"assets\\xml\\playstate.xml"
+			],
+			[
+				"defini",
+				"assets\\xml\\definitions.xml"
+			],
+			[
+				"proje",
+				"Project.xml"
+			],
+			[
+				"world",
+				"assets/data/world.tmx"
+			],
+			[
+				"PROJ",
+				"Project.xml"
+			],
+			[
+				"level",
+				"assets/data/level0.tmx"
+			],
+			[
+				"playst",
+				"source/PlayState.hx"
+			],
+			[
+				"projec",
+				"Project.xml"
+			],
+			[
+				"mai",
+				"source/Main.hx"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 251.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

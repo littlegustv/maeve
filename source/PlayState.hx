@@ -21,6 +21,7 @@ import flixel.addons.editors.tiled.TiledTileLayer;
 import flixel.addons.editors.tiled.TiledObjectLayer;
 import flixel.addons.editors.tiled.TiledObject;
 import flixel.addons.display.FlxStarField;
+import flixel.addons.display.FlxNestedSprite;
 
 import flixel.tile.FlxTilemap;
 import flixel.tile.FlxBaseTilemap;
@@ -41,6 +42,8 @@ class PlayState extends FlxState
   var map:TiledMap;
   var walls:FlxTilemap;
 
+  var ship:FlxNestedSprite;
+
   public function new(client:mphx.client.Client) {
   	super();
   	this.client = client;
@@ -56,18 +59,18 @@ class PlayState extends FlxState
 
 		// handle tile image borders/spacing
 
-		// var ground = new FlxTilemap();
-		// ground.loadMapFromArray( cast( map.getLayer("Ground"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
-		// ground.screenCenter();
-		// add(ground);
-
 		var stars = new FlxStarField2D(0, 0, FlxG.width, FlxG.height, 100);
 		stars.scrollFactor.set(0);
 	    add(stars);
 
-		var title = new FlxText(0, 0, 0, "maeve.", 64);
-		title.screenCenter();
-		add(title);
+		// var title = new FlxText(0, 0, 0, "maeve.", 64);
+		// title.screenCenter();
+		// add(title);
+
+		var ground = new FlxTilemap();
+		ground.loadMapFromArray( cast( map.getLayer("Ground"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
+		ground.screenCenter();
+		add(ground);
 
 		walls = new FlxTilemap();
 		walls.loadMapFromArray( cast( map.getLayer("Solids"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
@@ -77,6 +80,10 @@ class PlayState extends FlxState
 		buttons = new FlxTypedGroup();
 		add(buttons);
 
+		// ship = new FlxNestedSprite(0, 0);
+		// ship.velocity.set(40, 0);
+		// add(ship);
+		
 		player = new Mobile(FlxG.random.int(0, FlxG.width), FlxG.random.int(0, FlxG.height), AssetPaths.player__png);
 		player.move('idle');
 		FlxG.camera.follow(player);
@@ -160,7 +167,9 @@ class PlayState extends FlxState
 	{
 		super.update(elapsed);
 
-		// player.velocity.set(0, 0);
+		// walls.x = ship.x - walls.width / 2;
+		// walls.y = ship.y - walls.height / 2;
+		player.velocity.set(0, 0);
 
 		#if (desktop || web)
 		if (FlxG.keys.pressed.UP) {

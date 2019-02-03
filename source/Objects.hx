@@ -1,10 +1,12 @@
 package;
 
 import flixel.FlxSprite;
+import flixel.FlxObject;
 import flixel.math.FlxPoint;
 import flixel.system.FlxAssets;
+import flixel.addons.display.FlxNestedSprite;
 
-class Mobile extends FlxSprite {
+class Mobile extends FlxNestedSprite {
 	// var direction:FlxPoint = new FlxPoint(0, 0);
 	var speed:Int = 64;
 	var movement:String = "idle";

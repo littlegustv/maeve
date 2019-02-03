@@ -50,7 +50,9 @@ class Main {
       for (key in rooms.keys()) {
         keys.push(key);
       }
-      sender.send( "RoomsData", { rooms: keys } );
+      trace('getting rooms: ', keys);
+      var result = sender.send( "RoomsData", { rooms: keys } );
+      trace('hello!', result);
     });
 
     server.events.on("JoinRoom", function ( data:Dynamic, sender:mphx.connection.IConnection ) {

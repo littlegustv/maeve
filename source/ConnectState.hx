@@ -23,7 +23,7 @@ class ConnectState extends FlxState
   var HOST:String = "127.0.0.1";
 
   function connect () {
-		client = new mphx.client.Client( HOST, PORT );
+	client = new mphx.client.Client( HOST, PORT );
     client.onConnectionError = function (error:Dynamic) {
       trace("On Connection Error:", error.keys, connection_attempts);
       connection_attempts += 1;

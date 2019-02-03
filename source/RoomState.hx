@@ -38,7 +38,8 @@ class RoomState extends FlxState
 		add(loading);
 
     client.events.on("RoomsData", function (data:Dynamic) {
-    	trace("ROOMS LIST: ", data.rooms);
+    	trace('mhmhmafdga');
+      trace("ROOMS LIST: ", data.rooms);
     	// rooms = new Array<FlxText>();
     	// var rooms = new FlxUIRadioGroup(0, 10, data.rooms, data.rooms);
     	FlxSpriteUtil.fadeOut(loading);
@@ -71,6 +72,7 @@ class RoomState extends FlxState
     });
   	trace('getting rooms');
   	client.send("GetRooms");
+    trace('what');
 	}
 
 	override public function update(elapsed:Float):Void
