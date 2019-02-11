@@ -84,7 +84,7 @@ class PlayState extends FlxState
 		// ship.velocity.set(40, 0);
 		// add(ship);
 		
-		player = new Mobile(FlxG.random.int(0, FlxG.width), FlxG.random.int(0, FlxG.height), AssetPaths.player__png);
+		player = new Mobile(FlxG.random.int(0, FlxG.width), FlxG.random.int(0, FlxG.height), AssetPaths.robot__png);
 		player.move('idle');
 		FlxG.camera.follow(player);
 		add(player);
@@ -127,7 +127,7 @@ class PlayState extends FlxState
     client.events.on("Join", function (data) {
     	trace('join');
     	if (player.client_id != data.client_id) {
-				var enemy = new Mobile(data.x, data.y, AssetPaths.player__png);
+				var enemy = new Mobile(data.x, data.y, AssetPaths.robot__png);
 				enemy.client_id = data.client_id;
 				enemies.add(enemy);
 				trace('new');   		
@@ -153,7 +153,7 @@ class PlayState extends FlxState
 	    		}
 	    	}
 	    	if (found == false) {
-	    		var enemy = new Mobile(data.x, data.y, AssetPaths.player__png);
+	    		var enemy = new Mobile(data.x, data.y, AssetPaths.robot__png);
 	    		enemy.client_id = data.client_id;
 					enemies.add(enemy);
 					trace('new (during sync)');   
