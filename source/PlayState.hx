@@ -184,7 +184,7 @@ class PlayState extends FlxState
 			player.move('idle');
 		}
 		if (FlxG.keys.pressed.SPACE) {
-			registered = true;
+			// registered = true;
 			// trace('what is happening', player.data());
 		} 
 		#end

@@ -8,6 +8,11 @@ import flixel.group.FlxGroup;
 import flixel.util.FlxColor;
 import flixel.addons.ui.FlxUIInputText;
 import flixel.addons.ui.FlxUIButton;
+#if neko
+	import neko.vm.Thread;
+#elseif cpp
+	import cpp.vm.Thread;
+#end
 
 import Objects;
 
@@ -16,14 +21,55 @@ class ConnectState extends FlxState
   var client:mphx.client.Client;
   var connection_attempts:Int = 0;
   
-  var rooms:Array<FlxText>;
-  var room_index = 0;
+  // var rooms:Array<FlxText>;
+  // var room_index = 0;
 
   var PORT:Int = 8000;
   var HOST:String = "127.0.0.1";
 
+  #if ( neko || cpp )
+  var clients:Array<mphx.connection.IConnection> = new Array();
+  var server:mphx.server.impl.Server;
+
+  function start_server() {
+		var HOST = "127.0.0.1";
+    var PORT = 8000;
+
+    server = new mphx.server.impl.Server( HOST, PORT );
+
+    server.onConnectionAccepted = function ( reason:String, sender:mphx.connection.IConnection ) {
+      trace("SERVER: Connection Accepted: ", reason);
+    };
+
+    server.onConnectionClose =function ( reason:String, sender:mphx.connection.IConnection ) {
+      trace("SERVER: Connection Closed: ", reason);
+      // server.broadcast( "Leave", {id: clients.indexOf(sender) });
+    };
+
+    server.events.on("Register", function( data:Dynamic, sender:mphx.connection.IConnection )
+    {
+      trace( "SERVER: Registered: ", data);
+      clients.push(sender);
+      sender.send("Registered", { id: clients.indexOf(sender) });
+      // server.broadcast( "Join", data );
+    });
+
+    server.events.on("Join", function( data:Dynamic, sender:mphx.connection.IConnection ) {
+    	trace("SERVER: Join", data);
+      server.broadcast( "Join", data );
+    });
+    
+    server.events.on("PlayerData", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
+      server.broadcast( "PlayerUpdate", data );
+    });
+
+    server.start();
+  }
+  #end
+
+
   function connect () {
-	client = new mphx.client.Client( HOST, PORT );
+		client = new mphx.client.Client( HOST, PORT );
     client.onConnectionError = function (error:Dynamic) {
       trace("On Connection Error:", error.keys, connection_attempts);
       connection_attempts += 1;
@@ -35,21 +81,9 @@ class ConnectState extends FlxState
       trace("Connection Closed:", error);
     };
     client.onConnectionEstablished = function () {
-      FlxG.switchState(new RoomState(client));
+    	trace("CLIENT: Connection Established");
+      FlxG.switchState(new PlayState(client));
     };
-    // client.events.on("RoomsData", function (data:Dynamic) {
-    // 	trace("ROOMS LIST: ", data.rooms);
-    // 	rooms = new Array<FlxText>();
-    // 	for (i in 0...data.rooms.length) {
-    // 		var room = new FlxText(0, ( i + 1 ) * 10, 0, data.rooms[i], 8);
-    // 		rooms.push(room);
-    // 		add(room);
-    // 	}
-    // });
-    // client.events.on("JoinedRoom", function (data) {
-    // 	trace("joined room!!");
-    // 	FlxG.switchState(new PlayState(client));
-    // });
     client.connect();
   }
 
@@ -69,6 +103,14 @@ class ConnectState extends FlxState
 			connect();
 		});
 		add(connect_button);
+
+		#if ( neko || cpp )
+			var host_button = new FlxUIButton( 92, 80, "HOST", function () {
+				Thread.create(this.start_server);
+				// this.start_server();
+			});
+			add(host_button);
+		#end
 	}
 
 	override public function update(elapsed:Float):Void

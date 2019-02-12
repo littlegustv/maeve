@@ -37,12 +37,13 @@ class Main {
     });
 
     server.events.on("Join", function( data:Dynamic, sender:mphx.connection.IConnection ) {
-      sender.room.broadcast( "Join", data );
+      server.broadcast( "Join", data );
     });
     
     server.events.on("PlayerData", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
       // trace('got PLAYER UPDATE yay');
-      sender.room.broadcast( "PlayerUpdate", data );
+      // sender.room.broadcast( "PlayerUpdate", data );
+      server.broadcast( "PlayerUpdate", data);
     });
 
     server.events.on("GetRooms", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
