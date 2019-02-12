@@ -8,6 +8,9 @@ import flixel.group.FlxGroup;
 import flixel.util.FlxColor;
 import flixel.addons.ui.FlxUIInputText;
 import flixel.addons.ui.FlxUIButton;
+
+import mphx.utils.Log;
+
 #if neko
 	import neko.vm.Thread;
 #elseif cpp
@@ -18,9 +21,9 @@ import Objects;
 
 class ConnectState extends FlxState
 {
-  var client:mphx.client.Client;
+  var client:MyClient;
   var connection_attempts:Int = 0;
-  
+
   // var rooms:Array<FlxText>;
   // var room_index = 0;
 
@@ -46,11 +49,11 @@ class ConnectState extends FlxState
       // server.broadcast( "Leave", {id: clients.indexOf(sender) });
     };
 
-    server.events.on("Register", function( data:Dynamic, sender:mphx.connection.IConnection )
+    server.events.on("ClientRegister", function( data:Dynamic, sender:mphx.connection.IConnection )
     {
       trace( "SERVER: Registered: ", data);
       clients.push(sender);
-      sender.send("Registered", { id: clients.indexOf(sender) });
+      sender.send("ServerRegister", { id: clients.indexOf(sender) });
       // server.broadcast( "Join", data );
     });
 
@@ -69,7 +72,7 @@ class ConnectState extends FlxState
 
 
   function connect () {
-		client = new mphx.client.Client( HOST, PORT );
+		client = new MyClient( HOST, PORT );
     client.onConnectionError = function (error:Dynamic) {
       trace("On Connection Error:", error.keys, connection_attempts);
       connection_attempts += 1;
@@ -90,6 +93,8 @@ class ConnectState extends FlxState
 	override public function create():Void
 	{
 		super.create();
+
+		Log.debugLevel = DebugLevel.Errors | DebugLevel.Warnings | DebugLevel.Info | DebugLevel.Networking;
 
 		var choose_host = new FlxUIInputText( 0, 64, 48, HOST, 8);
 		add(choose_host);

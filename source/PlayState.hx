@@ -35,7 +35,7 @@ class PlayState extends FlxState
 	var buttons:FlxTypedGroup<FlxSprite>;
   
   var registered:Bool = false;
-  var client:mphx.client.Client;
+  var client:MyClient;
   // var client_id:Int;
   var connection_attempts:Int = 0;
 
@@ -44,7 +44,7 @@ class PlayState extends FlxState
 
   var ship:FlxNestedSprite;
 
-  public function new(client:mphx.client.Client) {
+  public function new(client:MyClient) {
   	super();
   	this.client = client;
   }
@@ -115,10 +115,10 @@ class PlayState extends FlxState
     //   trace('registering??');
     // };
     // client.connect();
-    client.send("Register", "HELLO!!!");
+    client.send("ClientRegister", "HELLO!!!");
 
-    client.events.on("Registered", function (data) {
-    	trace("Registered", data.id);
+    client.events.on("ServerRegister", function (data) {
+    	trace("CLIENT: Registered", data.id);
     	player.client_id = data.id;
     	// registered = true;
 	  	client.send("Join", {client_id: player.client_id, x: player.x, y: player.y});
@@ -166,6 +166,8 @@ class PlayState extends FlxState
 	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
+
+		client.update();
 
 		// walls.x = ship.x - walls.width / 2;
 		// walls.y = ship.y - walls.height / 2;
