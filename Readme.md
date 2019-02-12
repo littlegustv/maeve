@@ -3,11 +3,15 @@ Follow the instructions <a href="https://haxe.org/videos/tutorials/haxeflixel-tu
 Install lime version 6.4.0 and openfl version 8.4.0 (haxelib install lime 6.4.0 and then haxelib set lime 6.4.0) 
 
 Todo:
-- improved tilemap
 - run server from game, if possible ('host'/'join' option)
-- remove rooms?
+	- weird cross-platform behavior
+		- if neko hosts, html5 has to JOIN before they do, otherwise it doesn't work?
+		- neko/cpp clients are CRAZY laggy in updating other players (I guess in reading events from server?)
 - add auto-opening doors
 - add weapons station
 	- eventually, abstract MP behavior and data (client_id, uid, when to send, etc.)
 - add enemies (simple ship movement)
 - add lighting sprites, (blue, yellow, red)
+- improved tilemap
+- fix bugs!
+	- weird dead player spawn on connect (extra object being added somewhere?)
