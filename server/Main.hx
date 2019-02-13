@@ -1,8 +1,18 @@
 class Main {
+  var clients:Map<String, mphx.connection.IConnection> = new Map();
   var server:mphx.server.impl.Server;
-  var clients:Array<mphx.connection.IConnection> = new Array();
-
   var rooms:Map<String, mphx.server.room.Room>;
+
+  function makeID () {
+    var id = "";
+    var charactersToUse = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    for (i in 0...6)
+    {
+      id += charactersToUse.charAt(Math.floor(Math.random()*charactersToUse.length));
+    }
+    return id;
+  }
+  
   public function new ()
   {
     var HOST = "127.0.0.1";
@@ -20,30 +30,31 @@ class Main {
     
 
     server.onConnectionAccepted = function ( reason:String, sender:mphx.connection.IConnection ) {
-      trace("Connection Accepted: ", reason);
+      trace("SERVER: Connection Accepted: ", reason);
     };
 
     server.onConnectionClose =function ( reason:String, sender:mphx.connection.IConnection ) {
-      trace("Connection Closed: ", reason);
+      trace("SERVER: Connection Closed: ", reason);
       // server.broadcast( "Leave", {id: clients.indexOf(sender) });
     };
 
-    server.events.on("Register", function( data:Dynamic, sender:mphx.connection.IConnection )
+    server.events.on("ClientRegister", function( data:Dynamic, sender:mphx.connection.IConnection )
     {
-      trace( "Registered: ", data);
-      clients.push(sender);
-      sender.send("Registered", {id: clients.indexOf(sender) });
+      trace( "SERVER: Registered: ", data);
+      var id = makeID();
+      clients.set(id, sender);
+      sender.send("ServerRegister", { client_id: id });
       // server.broadcast( "Join", data );
     });
 
     server.events.on("Join", function( data:Dynamic, sender:mphx.connection.IConnection ) {
+      trace("SERVER: Join", data);
       server.broadcast( "Join", data );
     });
     
     server.events.on("PlayerData", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
-      // trace('got PLAYER UPDATE yay');
-      // sender.room.broadcast( "PlayerUpdate", data );
-      server.broadcast( "PlayerUpdate", data);
+      // trace("PlayerData", data);
+      server.broadcast( "PlayerUpdate", data );
     });
 
     server.events.on("GetRooms", function ( data:Dynamic, sender:mphx.connection.IConnection ) {

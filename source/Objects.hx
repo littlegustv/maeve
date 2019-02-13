@@ -6,50 +6,31 @@ import flixel.math.FlxPoint;
 import flixel.system.FlxAssets;
 import flixel.addons.display.FlxNestedSprite;
 
-// import mphx.utils.event.impl.ClientEventManager;
-// import mphx.serialization.ISerializer;
-// import sys.net.Socket;
-// import haxe.io.Input;
-// import haxe.io.Bytes;
-// import mphx.utils.Log;
+class Hitbox extends FlxObject {
+	private var INTERVAL = 2;
+	private var timer:Float = 0;
+	public var callback:Void->Void;
+	public var restore:Void->Void;
 
-// class MyClientEventManager extends ClientEventManager {
-// 	public function getEventMap() {
-// 		return this.eventMap;
-// 	}
-// 	public override function callEventCallback(eventName:String, data:Dynamic)
-// 	{
-// 		//If an event with that name exists.
-// 		if (eventMap.exists(eventName))
-// 		{
-// 			//See if the event should be called with or without the sender.
-// 			if(eventMap.get(eventName) != null){
-// 				// trace("event function exists", eventName, eventMap.get(eventName));
-// 				eventMap.get(eventName)(data);
-// 			}else{
-// 				Log.message(DebugLevel.Info | DebugLevel.Networking,"mphx recieved event type "+eventName+" however no event listener was registered for it.");
-// 			}
-// 		} else {
-// 			trace("event did not exist", eventName);
-// 		}
-// 	}
-// }
+	public override function update(elapsed:Float) {
+		super.update(elapsed);
+		if (timer > 0) { 
+			timer -= elapsed;
+			if (timer <= 0) {
+				timer = 0;
+				restore();
+			}
+		}
+	}
 
-class MyClient extends mphx.client.Client {
-
-	// public function new(_ip:String, _port:Int, _serializer : ISerializer = null, _blocking : Bool = false) {
-	// 	trace("MYCLIENT");
-	// 	super(_ip, _port, _serializer, _blocking);
-	// 	events = new MyClientEventManager();
-	// }
-
-	// public override function recieve(line:String)
-	// {
-	// 	var msg = serializer.deserialize(line);
-	// 	var key:String = msg.t;
-	// 	// trace("Events", key.length, msg.data);			
-	// 	events.callEvent(msg.t,msg.data);
-	// }
+	public function handleOverlap() {
+		if ( timer > 0 ) {
+			// nothing
+		} else {
+			callback();
+		}
+		timer = INTERVAL;
+	}
 }
 
 class Mobile extends FlxNestedSprite {
@@ -57,7 +38,8 @@ class Mobile extends FlxNestedSprite {
 	var speed:Int = 64;
 	var movement:String = "idle";
 
-	public var client_id:Int;
+	public var client_id:String;
+	public var needs_updating:Bool = false;
 
 	public function new(x:Float, y:Float, graphic:FlxGraphicAsset) {
 		super(x, y);
@@ -74,6 +56,14 @@ class Mobile extends FlxNestedSprite {
 		super.update(elapsed);
 	}
 
+	public function setHitBox(?w:Float = 12, ?h:Float = 12) {
+		var offset_w = (this.width - w) / 2;
+		var offset_h = (this.height - h) / 2;
+		this.width = w;
+		this.height = h;
+		this.offset.set(offset_w, offset_h);
+	}
+
 	public function move(d:String) {
 		this.movement = d;
 		switch (this.movement) {
@@ -87,6 +77,9 @@ class Mobile extends FlxNestedSprite {
 				this.velocity.set(-1 * this.speed, 0);
 			case "idle":
 				this.velocity.set(0, 0);
+		}
+		if (this.animation.name != this.movement) {
+			this.needs_updating = true;
 		}
 		this.animation.play(this.movement);
 	}

@@ -12,6 +12,7 @@ import flixel.FlxState;
 import flixel.text.FlxText;
 import flixel.FlxSprite;
 import flixel.FlxG;
+import flixel.FlxObject;
 import flixel.group.FlxGroup;
 
 // Tilemap stuff
@@ -23,6 +24,9 @@ import flixel.addons.editors.tiled.TiledObject;
 import flixel.addons.display.FlxStarField;
 import flixel.addons.display.FlxNestedSprite;
 
+import flixel.math.FlxAngle;
+import flixel.tweens.FlxTween;
+
 import flixel.tile.FlxTilemap;
 import flixel.tile.FlxBaseTilemap;
 
@@ -31,11 +35,15 @@ import Objects;
 class PlayState extends FlxState
 {
 	var player:Mobile;
+	var players:Map<String, Mobile> = new Map();
+
+	var mobiles:FlxTypedGroup<Mobile>;
+
 	var enemies:FlxTypedGroup<Mobile>;
 	var buttons:FlxTypedGroup<FlxSprite>;
   
   var registered:Bool = false;
-  var client:MyClient;
+  var client:mphx.client.Client;
   // var client_id:Int;
   var connection_attempts:Int = 0;
 
@@ -44,7 +52,13 @@ class PlayState extends FlxState
 
   var ship:FlxNestedSprite;
 
-  public function new(client:MyClient) {
+  var controls:FlxTypedGroup<Hitbox>;
+
+  function volume(to:FlxObject) {
+  	return Math.max( 0, Math.min( 1, (160 - to.getPosition().distanceTo( player.getPosition() )) / 160 ));
+  }
+
+  public function new(client:mphx.client.Client) {
   	super();
   	this.client = client;
   }
@@ -54,6 +68,11 @@ class PlayState extends FlxState
 		super.create();
 		FlxG.autoPause = false;
 		FlxG.worldBounds.set(-1000, -1000, 3000, 3000);
+
+		FlxG.sound.playMusic(AssetPaths.ambient__wav);
+
+	  controls = new FlxTypedGroup<Hitbox>();
+	  mobiles = new FlxTypedGroup<Mobile>();
 
 		map = new TiledMap(AssetPaths.main__tmx);
 
@@ -69,57 +88,72 @@ class PlayState extends FlxState
 
 		var ground = new FlxTilemap();
 		ground.loadMapFromArray( cast( map.getLayer("Ground"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
-		ground.screenCenter();
+		// ground.screenCenter();
 		add(ground);
+
+    var objects = cast(map.getLayer("Objects"), TiledObjectLayer).objects;
+    for (i in 0...objects.length) {
+    	if (objects[i].name == "Door") {
+    		for (j in [-1, 1]) {
+	    		var theta = Std.parseInt(objects[i].properties.angle);
+	    		var offsetx = objects[i].x + 16 * Math.cos(FlxAngle.TO_RAD * theta) * j - 16;
+	    		var offsety = objects[i].y + 16 * Math.sin(FlxAngle.TO_RAD * theta) * j - 8;
+	    		var door = new FlxSprite(offsetx, offsety, AssetPaths.door__png);
+	    		door.angle = theta;
+	    		add(door);
+	    		// FIX ME: I've added two overlapping hitboxes, one for each side of the door - is there a better way?
+	    		var hitbox = new Hitbox(objects[i].x - 16, objects[i].y - 16, 32, 32);
+	    		hitbox.callback = function () {
+	    			FlxTween.tween(door, {
+	    				x: offsetx + j * 24 * Math.cos(door.angle * FlxAngle.TO_RAD),
+	    				y: offsety + j * 24 * Math.sin(door.angle * FlxAngle.TO_RAD) },
+	    				0.5, { type: FlxTweenType.ONESHOT }
+	    			);
+	    			if (j == 1) {
+	    				// trace('playing sound!');
+		    			FlxG.sound.play(AssetPaths.door__wav, volume(hitbox));
+	    			}
+	    		};
+	    		hitbox.restore = function () {
+	    			FlxTween.tween(door, { x: offsetx, y: offsety }, 0.5, { type: FlxTweenType.ONESHOT });
+	    			if (j == 1) {
+	    				// trace('playing sound!');
+		    			FlxG.sound.play(AssetPaths.door__wav, volume(hitbox));
+	    			}
+	    		};
+	    		add(hitbox);
+	    		controls.add(hitbox);
+    		}
+    	}
+    }
 
 		walls = new FlxTilemap();
 		walls.loadMapFromArray( cast( map.getLayer("Solids"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
-		walls.screenCenter();
+		// walls.screenCenter();
 		add(walls);
 
-		buttons = new FlxTypedGroup();
-		add(buttons);
-
-		// ship = new FlxNestedSprite(0, 0);
-		// ship.velocity.set(40, 0);
-		// add(ship);
-		
-		player = new Mobile(FlxG.random.int(0, FlxG.width), FlxG.random.int(0, FlxG.height), AssetPaths.robot__png);
+		player = new Mobile(240, 260, AssetPaths.robot__png);
 		player.move('idle');
+		player.setHitBox();
 		FlxG.camera.follow(player);
 		add(player);
+		mobiles.add(player);
 
 		enemies = new FlxTypedGroup();
 		add(enemies);
 
-		var button = new FlxSprite(160, 160);
-		button.loadGraphic(AssetPaths.button__png, true, 16, 16);
-		button.animation.add("off", [0]);
-		button.animation.add("on", [1]);
-		button.animation.play("off");
-		buttons.add(button);
+		// var button = new FlxSprite(160, 160);
+		// button.loadGraphic(AssetPaths.button__png, true, 16, 16);
+		// button.animation.add("off", [0]);
+		// button.animation.add("on", [1]);
+		// button.animation.play("off");
+		// buttons.add(button);
 
-    // client = new mphx.client.Client("192.168.1.22", 8000);
-    // trace(client);
-    // client.onConnectionError = function (error:Dynamic) {
-    //   trace("On Connection Error:", error.keys, connection_attempts);
-    //   connection_attempts += 1;
-    //   if (connection_attempts <= 10) {
-    //     client.connect();
-    //   }
-    // };
-    // client.onConnectionClose = function (error:Dynamic) {
-    //   trace("Connection Closed:", error);
-    // };
-    // client.onConnectionEstablished = function () {
-    //   trace('registering??');
-    // };
-    // client.connect();
     client.send("ClientRegister", "HELLO!!!");
 
     client.events.on("ServerRegister", function (data) {
-    	trace("CLIENT: Registered", data.id);
-    	player.client_id = data.id;
+    	trace("CLIENT: Registered", data.client_id);
+    	player.client_id = data.client_id;
     	// registered = true;
 	  	client.send("Join", {client_id: player.client_id, x: player.x, y: player.y});
     });
@@ -127,9 +161,12 @@ class PlayState extends FlxState
     client.events.on("Join", function (data) {
     	trace('join');
     	if (player.client_id != data.client_id) {
-				var enemy = new Mobile(data.x, data.y, AssetPaths.robot__png);
-				enemy.client_id = data.client_id;
-				enemies.add(enemy);
+				var m = new Mobile(data.x, data.y, AssetPaths.robot__png);				
+				m.setHitBox();
+				m.client_id = data.client_id;
+				players.set(m.client_id, m);
+				enemies.add(m);
+				mobiles.add(m);
 				trace('new');   		
     	}
     });
@@ -144,18 +181,18 @@ class PlayState extends FlxState
     // });
 
     client.events.on( "PlayerUpdate", function (data) {
+    	// trace('player_update', data.client_id, player.client_id);
     	if (data.client_id != player.client_id) {
-	    	var found = false;
-	    	for (e in enemies) {
-	    		if (e.client_id == data.client_id) {
-	    			e.sync(data);
-	    			found = true;
-	    		}
-	    	}
-	    	if (found == false) {
-	    		var enemy = new Mobile(data.x, data.y, AssetPaths.robot__png);
-	    		enemy.client_id = data.client_id;
-					enemies.add(enemy);
+	    	var p = players.get(data.client_id);
+	    	if (p != null) {
+	    		p.sync(data);
+	    	} else {
+	    		var m = new Mobile(data.x, data.y, AssetPaths.robot__png);
+	    		m.setHitBox();
+					m.client_id = data.client_id;
+					players.set(m.client_id, m);
+					enemies.add(m);
+					mobiles.add(m);
 					trace('new (during sync)');   
 	    	}
     	}
@@ -172,6 +209,7 @@ class PlayState extends FlxState
 		// walls.x = ship.x - walls.width / 2;
 		// walls.y = ship.y - walls.height / 2;
 		player.velocity.set(0, 0);
+		player.needs_updating = false;
 
 		#if (desktop || web)
 		if (FlxG.keys.pressed.UP) {
@@ -214,21 +252,28 @@ class PlayState extends FlxState
 
 		// collisions
 
-		FlxG.overlap(player, buttons, function (player, button) {
-			button.animation.play("on");
-		});
+		// FlxG.overlap(player, buttons, function (player, button) {
+		// 	button.animation.play("on");
+		// });
 
-		FlxG.overlap(enemies, buttons, function (enemy, button) {
-			button.animation.play("on");
-		});
+		// FlxG.overlap(enemies, buttons, function (enemy, button) {
+		// 	button.animation.play("on");
+		// });
 
+		// fix me: since collisions can happen every frame, this can ALSO get laggy
 		FlxG.collide(player, enemies, function (player, enemy) {
-			trace('collided with enemy!');
+			player.needs_updating = true;
 		});
 
-		FlxG.collide(player, walls);
+		FlxG.overlap(mobiles, controls, function (mobile, control) {
+			control.handleOverlap();
+		});
 
-		if ( true ) {
+		FlxG.collide(player, walls, function (player, wall) {
+			player.needs_updating = true;
+		});
+
+		if ( player != null && player.client_id != null && player.needs_updating == true ) {
 			client.send("PlayerData", player.data());
 		}
 	}
