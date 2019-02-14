@@ -73,6 +73,10 @@ class ConnectState extends FlxState
     	trace("SERVER: Join", data);
       server.broadcast( "Join", data );
     });
+
+    server.events.on( "Shoot", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
+    	server.broadcast( "Shoot", data );
+    });
     
     server.events.on("PlayerData", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
     	// trace("PlayerData", data);

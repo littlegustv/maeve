@@ -48,8 +48,11 @@ class Mobile extends FlxNestedSprite {
 		this.animation.add("up", [4, 5, 6, 7], 9, true);
 		this.animation.add("left", [8, 9, 10, 11], 9, true);
 		this.animation.add("down", [12, 13, 14, 15], 9, true);
-		this.animation.add("idle", [12, 13], 6, true);		
-		this.move("idle");
+		this.animation.add("idle-right", [0], 6, true);		
+		this.animation.add("idle-up", [4], 6, true);		
+		this.animation.add("idle-left", [8], 6, true);		
+		this.animation.add("idle-down", [12], 6, true);		
+		this.move( "right" );
 	}
 
 	public override function update(elapsed:Float) {
@@ -65,8 +68,13 @@ class Mobile extends FlxNestedSprite {
 	}
 
 	public function move(d:String) {
-		this.movement = d;
-		switch (this.movement) {
+		var old = this.movement;
+		if ( old.substr(0, 4) != "idle" && d == "idle" ) {
+			this.movement = "idle-" + old;
+		} else if ( d != "idle" ) {
+			this.movement = d;
+		}
+		switch (this.movement.split("-")[0]) {
 			case "up":
 				this.velocity.set(0, -1 * this.speed);
 			case "down":
@@ -79,6 +87,7 @@ class Mobile extends FlxNestedSprite {
 				this.velocity.set(0, 0);
 		}
 		if (this.animation.name != this.movement) {
+			trace('hmm', this.animation.name, this.movement);
 			this.needs_updating = true;
 		}
 		this.animation.play(this.movement);

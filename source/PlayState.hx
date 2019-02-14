@@ -39,6 +39,12 @@ class PlayState extends FlxState
 
 	var mobiles:FlxTypedGroup<Mobile>;
 
+	var console:FlxSprite;
+	var consoles:FlxTypedGroup<FlxSprite>;
+	var control_scheme:String = "movement";
+	var shooting_angle:Float = 0;
+
+	var projectiles:FlxTypedGroup<FlxSprite>;
 	var enemies:FlxTypedGroup<Mobile>;
 	var buttons:FlxTypedGroup<FlxSprite>;
   
@@ -50,9 +56,20 @@ class PlayState extends FlxState
   var map:TiledMap;
   var walls:FlxTilemap;
 
+  var back:FlxGroup;
+  var front:FlxGroup;
+
   var ship:FlxNestedSprite;
 
-  var controls:FlxTypedGroup<Hitbox>;
+  // fix me: rename as 'hitboxes' ?
+  var hitboxes:FlxTypedGroup<Hitbox>;
+
+  function shoot(x:Float, y:Float, angle:Float) {
+  	FlxG.sound.play( AssetPaths.shoot__wav );
+  	var p = new FlxSprite( x, y, AssetPaths.projectile__png );
+		p.velocity.set( 100 * Math.cos( angle ), 100 * Math.sin( angle ));
+		projectiles.add(p);
+  }
 
   function volume(to:FlxObject) {
   	return Math.max( 0, Math.min( 1, (160 - to.getPosition().distanceTo( player.getPosition() )) / 160 ));
@@ -71,8 +88,12 @@ class PlayState extends FlxState
 
 		FlxG.sound.playMusic(AssetPaths.ambient__wav);
 
-	  controls = new FlxTypedGroup<Hitbox>();
+	  hitboxes = new FlxTypedGroup<Hitbox>();
 	  mobiles = new FlxTypedGroup<Mobile>();
+	  consoles = new FlxTypedGroup<FlxSprite>();
+	  projectiles = new FlxTypedGroup<FlxSprite>();
+	  back = new FlxGroup();
+	  front = new FlxGroup();
 
 		map = new TiledMap(AssetPaths.main__tmx);
 
@@ -80,20 +101,19 @@ class PlayState extends FlxState
 
 		var stars = new FlxStarField2D(0, 0, FlxG.width, FlxG.height, 100);
 		stars.scrollFactor.set(0);
-	    add(stars);
+    add(stars);
 
-		// var title = new FlxText(0, 0, 0, "maeve.", 64);
-		// title.screenCenter();
-		// add(title);
+    add(projectiles);
 
 		var ground = new FlxTilemap();
 		ground.loadMapFromArray( cast( map.getLayer("Ground"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
-		// ground.screenCenter();
 		add(ground);
+
+		add(back);
 
     var objects = cast(map.getLayer("Objects"), TiledObjectLayer).objects;
     for (i in 0...objects.length) {
-    	if (objects[i].name == "Door") {
+    	if ( objects[i].type == "Door" ) {
     		for (j in [-1, 1]) {
 	    		var theta = Std.parseInt(objects[i].properties.angle);
 	    		var offsetx = objects[i].x + 16 * Math.cos(FlxAngle.TO_RAD * theta) * j - 16;
@@ -121,16 +141,24 @@ class PlayState extends FlxState
 		    			FlxG.sound.play(AssetPaths.door__wav, volume(hitbox));
 	    			}
 	    		};
-	    		add(hitbox);
-	    		controls.add(hitbox);
+	    		back.add(hitbox);
+	    		hitboxes.add(hitbox);
+    		}
+    	} else if ( objects[i].type == "Console" ) {
+    		if ( objects[i].name == "Weapons" ) {
+    			var console = new FlxSprite( objects[i].x - 4, objects[i].y - 4, AssetPaths.console__png );
+    			console.angle = Std.parseInt( objects[i].properties.angle );
+    			consoles.add( console );
+    			front.add( console );
     		}
     	}
     }
 
 		walls = new FlxTilemap();
 		walls.loadMapFromArray( cast( map.getLayer("Solids"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
-		// walls.screenCenter();
 		add(walls);
+
+		add(front);
 
 		player = new Mobile(240, 260, AssetPaths.robot__png);
 		player.move('idle');
@@ -142,14 +170,8 @@ class PlayState extends FlxState
 		enemies = new FlxTypedGroup();
 		add(enemies);
 
-		// var button = new FlxSprite(160, 160);
-		// button.loadGraphic(AssetPaths.button__png, true, 16, 16);
-		// button.animation.add("off", [0]);
-		// button.animation.add("on", [1]);
-		// button.animation.play("off");
-		// buttons.add(button);
-
     client.send("ClientRegister", "HELLO!!!");
+
 
     client.events.on("ServerRegister", function (data) {
     	trace("CLIENT: Registered", data.client_id);
@@ -171,15 +193,6 @@ class PlayState extends FlxState
     	}
     });
 
-    // client.events.on( "Leave", function (data) {
-    // 	trace('leave');
-    // 	for (e in enemies) {
-    // 		if (e.client_id == data.client_id) {
-    // 			enemies.remove(e);
-    // 		}
-    // 	}
-    // });
-
     client.events.on( "PlayerUpdate", function (data) {
     	// trace('player_update', data.client_id, player.client_id);
     	if (data.client_id != player.client_id) {
@@ -198,6 +211,12 @@ class PlayState extends FlxState
     	}
     });
 
+    client.events.on( "Shoot", function ( data ) {
+    	if ( data.client_id != player.client_id ) {
+    		shoot( data.x, data.y, data.angle );
+    	}
+    });
+
 	}
 
 	override public function update(elapsed:Float):Void
@@ -206,66 +225,90 @@ class PlayState extends FlxState
 
 		client.update();
 
-		// walls.x = ship.x - walls.width / 2;
-		// walls.y = ship.y - walls.height / 2;
 		player.velocity.set(0, 0);
 		player.needs_updating = false;
 
-		#if (desktop || web)
-		if (FlxG.keys.pressed.UP) {
-			player.move('up');
-		} else if (FlxG.keys.pressed.DOWN) {
-			player.move('down');
-		} else if (FlxG.keys.pressed.RIGHT) {
-			player.move('right');
-		} else if (FlxG.keys.pressed.LEFT) {
-			player.move('left');
-		} else {
-			player.move('idle');
+		if ( control_scheme == "movement" ) {
+			#if (desktop || web)
+				if (FlxG.keys.pressed.UP) {
+					player.move('up');
+				} else if (FlxG.keys.pressed.DOWN) {
+					player.move('down');
+				} else if (FlxG.keys.pressed.RIGHT) {
+					player.move('right');
+				} else if (FlxG.keys.pressed.LEFT) {
+					player.move('left');
+				} else {
+					player.move('idle');
+				}
+
+				if ( FlxG.keys.justPressed.F ) {
+					FlxG.overlap( player, consoles, function ( player, console ) {
+						control_scheme = "weapons";
+						this.console = console;
+						shooting_angle = FlxAngle.TO_RAD * console.angle;
+						player.setPosition( console.origin.x + console.x - 16 * Math.cos( FlxAngle.TO_RAD * console.angle), console.origin.y + console.y - 16 * Math.sin( FlxAngle.TO_RAD * console.angle) );
+						FlxTween.tween( FlxG.camera.targetOffset, { 
+							x: Math.cos( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 3, 
+							y: Math.sin( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 3 }, 
+							0.25, { onComplete: function (tween:FlxTween) {
+							}
+						});
+						player.move('idle');
+					});
+				}
+			#elseif (mobile || web)
+				for (touch in FlxG.touches.list)
+				{
+				    if (touch.pressed) {
+				    	if (touch.screenY > 2 * FlxG.height / 3) {
+				    		player.move("down");
+				    	} else if (touch.screenY < FlxG.height / 3) {
+				    		player.move("up");
+				    	} else if (touch.screenX > 2 * FlxG.width / 3) {
+				    		player.move("right");
+				    	} else if (touch.screenX < FlxG.width / 3) {
+				    		player.move("left");
+				    	} else {
+				    		registered = true;
+				    	}
+				    }
+				}
+			#end
+		} else if ( control_scheme == "weapons" ) {
+			#if (desktop || web)
+				if ( FlxG.keys.justPressed.F ) {
+					control_scheme = "movement";
+					FlxTween.tween( FlxG.camera.targetOffset, { 
+						x: 0, 
+						y: 0 },
+						0.25, { onComplete: function (tween:FlxTween) {
+							trace('done camering', FlxG.camera.x, FlxG.camera.y);
+						}
+					});
+				}
+
+				if ( FlxG.keys.pressed.RIGHT ) {
+					shooting_angle -= elapsed * 1;
+				} else if ( FlxG.keys.pressed.LEFT ) {
+					shooting_angle += elapsed * 1;
+				}
+
+				if ( FlxG.keys.justPressed.SPACE ) {
+					shoot(console.x, console.y, shooting_angle);
+					client.send("Shoot", { client_id: player.client_id, x: console.x, y: console.y, angle: shooting_angle });
+				}
+
+				// fix me: visible aiming of some kind
+			#end
 		}
-		if (FlxG.keys.pressed.SPACE) {
-			// registered = true;
-			// trace('what is happening', player.data());
-		} 
-		#end
-
-		#if (mobile || web)
-		for (touch in FlxG.touches.list)
-		{
-		    // if (touch.justPressed) {}
-		    if (touch.pressed) {
-		    	if (touch.screenY > 2 * FlxG.height / 3) {
-		    		player.move("down");
-		    	} else if (touch.screenY < FlxG.height / 3) {
-		    		player.move("up");
-		    	} else if (touch.screenX > 2 * FlxG.width / 3) {
-		    		player.move("right");
-		    	} else if (touch.screenX < FlxG.width / 3) {
-		    		player.move("left");
-		    	} else {
-		    		registered = true;
-		    	}
-		    }
-		    // if (touch.justReleased) {}
-		}
-		#end
-
-		// collisions
-
-		// FlxG.overlap(player, buttons, function (player, button) {
-		// 	button.animation.play("on");
-		// });
-
-		// FlxG.overlap(enemies, buttons, function (enemy, button) {
-		// 	button.animation.play("on");
-		// });
 
 		// fix me: since collisions can happen every frame, this can ALSO get laggy
 		FlxG.collide(player, enemies, function (player, enemy) {
 			player.needs_updating = true;
 		});
 
-		FlxG.overlap(mobiles, controls, function (mobile, control) {
+		FlxG.overlap(mobiles, hitboxes, function (mobile, control) {
 			control.handleOverlap();
 		});
 
