@@ -4,14 +4,20 @@ Install lime version 6.4.0 and openfl version 8.4.0 (haxelib install lime 6.4.0 
 
 Todo:
 x- run server from game, if possible ('host'/'join' option)
-	- weird cross-platform behavior
-		- if neko hosts, html5 has to JOIN before they do, otherwise it doesn't work?
+	x- weird cross-platform behavior
+		x- if neko hosts, html5 has to JOIN before they do, otherwise it doesn't work?
 		x- neko/cpp clients are CRAZY laggy in updating other players (I guess in reading events from server?)
-- add auto-opening doors
-- add weapons station
-	- eventually, abstract MP behavior and data (client_id, uid, when to send, etc.)
+x- add auto-opening doors
+x- add weapons station
+	- improve camera location, maybe change scaling, rotation? (wider view...)
+	- server event for use/stop using, and check to make sure only one can use at a time
+	- improve visibiliy/appearance of weapon, projectiles
 - add enemies (simple ship movement)
 - add lighting sprites, (blue, yellow, red)
 - improved tilemap
+	- some external decor (fins, engines)
+	- improve collisions (if possible)
 - fix bugs!
-	- weird dead player spawn on connect (extra object being added somewhere?)
+	- weird dead player spawn on connect (extra object being added somewhere?) ... haven't seen in a while?
+	- positions of objects! (especially for locking-onto station)
+	- better error handling for connection problems (host vs connect, e.g.)

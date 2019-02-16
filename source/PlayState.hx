@@ -105,6 +105,14 @@ class PlayState extends FlxState
 
     add(projectiles);
 
+		var wings = new FlxTilemap();
+		wings.loadMapFromArray( cast( map.getLayer("Wings"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
+		add(wings);
+
+		var details = new FlxTilemap();
+		details.loadMapFromArray( cast( map.getLayer("Details"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
+		add(details);
+
 		var ground = new FlxTilemap();
 		ground.loadMapFromArray( cast( map.getLayer("Ground"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
 		add(ground);
@@ -163,6 +171,7 @@ class PlayState extends FlxState
 		player = new Mobile(240, 260, AssetPaths.robot__png);
 		player.move('idle');
 		player.setHitBox();
+		// FlxG.camera.setSize(2 * FlxG.width, 2 * FlxG.width);
 		FlxG.camera.follow(player);
 		add(player);
 		mobiles.add(player);
@@ -254,6 +263,7 @@ class PlayState extends FlxState
 							0.25, { onComplete: function (tween:FlxTween) {
 							}
 						});
+						// FlxTween.tween( FlxG.camera, { zoom: 0.5 },  0.25 );
 						player.move('idle');
 					});
 				}
@@ -286,6 +296,7 @@ class PlayState extends FlxState
 							trace('done camering', FlxG.camera.x, FlxG.camera.y);
 						}
 					});
+					// FlxTween.tween( FlxG.camera, { zoom: 1 },  0.25 );
 				}
 
 				if ( FlxG.keys.pressed.RIGHT ) {
