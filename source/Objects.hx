@@ -5,6 +5,19 @@ import flixel.FlxObject;
 import flixel.math.FlxPoint;
 import flixel.system.FlxAssets;
 import flixel.addons.display.FlxNestedSprite;
+import flixel.math.FlxAngle;
+
+class Fighter extends FlxSprite {
+	public override function update( elapsed:Float ) {
+		this.angle += 2 * Math.PI * elapsed;
+		this.velocity.set( 150 * Math.cos( FlxAngle.TO_RAD * this.angle ), 150 * Math.sin( FlxAngle.TO_RAD * this.angle ));
+		super.update(elapsed);
+	}
+}
+
+class WeaponsConsole extends FlxSprite {
+	public var weapon:FlxSprite;
+}
 
 class Hitbox extends FlxObject {
 	private var INTERVAL = 2;
@@ -53,6 +66,7 @@ class Mobile extends FlxNestedSprite {
 		this.animation.add("idle-left", [8], 6, true);		
 		this.animation.add("idle-down", [12], 6, true);		
 		this.move( "right" );
+		this.move( "idle" );
 	}
 
 	public override function update(elapsed:Float) {

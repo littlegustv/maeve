@@ -46,8 +46,8 @@ class ConnectState extends FlxState
 	}
 
   function start_server() {
-		var HOST = "127.0.0.1";
-    var PORT = 8000;
+		// var HOST = "127.0.0.1";
+  //   var PORT = 8000;
 
     server = new mphx.server.impl.Server( HOST, PORT );
 
@@ -130,6 +130,7 @@ class ConnectState extends FlxState
 		#if ( neko || cpp )
 			var host_button = new FlxUIButton( 92, 50, "HOST", function () {
 				connect_button.kill();
+				HOST = choose_host.text;
 				Thread.create(this.start_server);
 				connect();
 				// this.start_server();

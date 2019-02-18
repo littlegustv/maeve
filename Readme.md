@@ -9,9 +9,9 @@ x- run server from game, if possible ('host'/'join' option)
 		x- neko/cpp clients are CRAZY laggy in updating other players (I guess in reading events from server?)
 x- add auto-opening doors
 x- add weapons station
-	- improve camera location, maybe change scaling, rotation? (wider view...)
+	x- improve camera location, maybe change scaling, rotation? (wider view...)
 	- server event for use/stop using, and check to make sure only one can use at a time
-	- improve visibiliy/appearance of weapon, projectiles
+	x- improve visibiliy/appearance of weapon, projectiles
 - add enemies (simple ship movement)
 - add lighting sprites, (blue, yellow, red)
 - improved tilemap
@@ -21,3 +21,11 @@ x- add weapons station
 	- weird dead player spawn on connect (extra object being added somewhere?) ... haven't seen in a while?
 	- positions of objects! (especially for locking-onto station)
 	- better error handling for connection problems (host vs connect, e.g.)
+
+Station
+ x- walk around inside ship
+ x- weapon stations
+ - enemy patterns
+ - damage and repair
+ - active shiels (toggle switch)
+ - fighters

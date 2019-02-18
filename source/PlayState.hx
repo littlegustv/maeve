@@ -35,18 +35,19 @@ import Objects;
 class PlayState extends FlxState
 {
 	var player:Mobile;
-	var players:Map<String, Mobile> = new Map();
+	var clients:Map<String, Mobile> = new Map();
 
 	var mobiles:FlxTypedGroup<Mobile>;
 
-	var console:FlxSprite;
+	var console:WeaponsConsole;
 	var consoles:FlxTypedGroup<FlxSprite>;
 	var control_scheme:String = "movement";
 	var shooting_angle:Float = 0;
 
 	var projectiles:FlxTypedGroup<FlxSprite>;
-	var enemies:FlxTypedGroup<Mobile>;
-	var buttons:FlxTypedGroup<FlxSprite>;
+	var players:FlxTypedGroup<Mobile>;
+	
+	var enemies:FlxTypedGroup<FlxSprite>;
   
   var registered:Bool = false;
   var client:mphx.client.Client;
@@ -64,10 +65,14 @@ class PlayState extends FlxState
   // fix me: rename as 'hitboxes' ?
   var hitboxes:FlxTypedGroup<Hitbox>;
 
-  function shoot(x:Float, y:Float, angle:Float) {
+  function round( n:Float, interval:Int = 1 ) {
+  	return Math.round( n / interval ) * interval;
+  }
+
+  function shoot( x:Float, y:Float, angle:Float ) {
   	FlxG.sound.play( AssetPaths.shoot__wav );
   	var p = new FlxSprite( x, y, AssetPaths.projectile__png );
-		p.velocity.set( 100 * Math.cos( angle ), 100 * Math.sin( angle ));
+		p.velocity.set( 250 * Math.cos( angle ), 250 * Math.sin( angle ));
 		projectiles.add(p);
   }
 
@@ -86,24 +91,30 @@ class PlayState extends FlxState
 		FlxG.autoPause = false;
 		FlxG.worldBounds.set(-1000, -1000, 3000, 3000);
 
-		FlxG.sound.playMusic(AssetPaths.ambient__wav);
+		// FlxG.sound.playMusic(AssetPaths.ambient__wav);
 
 	  hitboxes = new FlxTypedGroup<Hitbox>();
 	  mobiles = new FlxTypedGroup<Mobile>();
 	  consoles = new FlxTypedGroup<FlxSprite>();
 	  projectiles = new FlxTypedGroup<FlxSprite>();
+	  enemies = new FlxTypedGroup<FlxSprite>();
+
 	  back = new FlxGroup();
 	  front = new FlxGroup();
 
+	  // enemy ships
+	  for (i in 0...2) {
+	  	var e = new Fighter(0, 0, AssetPaths.enemy__png);
+	  	enemies.add(e);
+	  	front.add(e);
+	  }
+
+
 		map = new TiledMap(AssetPaths.main__tmx);
 
-		// handle tile image borders/spacing
-
-		var stars = new FlxStarField2D(0, 0, FlxG.width, FlxG.height, 100);
+		var stars = new FlxStarField2D(-2 * FlxG.width, -2 * FlxG.height, 4 * FlxG.width, 4 * FlxG.height, 100);
 		stars.scrollFactor.set(0);
     add(stars);
-
-    add(projectiles);
 
 		var wings = new FlxTilemap();
 		wings.loadMapFromArray( cast( map.getLayer("Wings"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
@@ -154,10 +165,16 @@ class PlayState extends FlxState
     		}
     	} else if ( objects[i].type == "Console" ) {
     		if ( objects[i].name == "Weapons" ) {
-    			var console = new FlxSprite( objects[i].x - 4, objects[i].y - 4, AssetPaths.console__png );
+    			var console = new WeaponsConsole( objects[i].x - 4, objects[i].y - 4, AssetPaths.console__png );
     			console.angle = Std.parseInt( objects[i].properties.angle );
     			consoles.add( console );
     			front.add( console );
+
+    			var turret = new FlxSprite( objects[i].x + 32 * Math.cos( FlxAngle.TO_RAD * console.angle ), objects[i].y + 32 * Math.sin( FlxAngle.TO_RAD * console.angle ), AssetPaths.turret__png );
+    			turret.angle = console.angle;
+    			front.add(turret);
+
+    			console.weapon = turret;
     		}
     	}
     }
@@ -166,6 +183,7 @@ class PlayState extends FlxState
 		walls.loadMapFromArray( cast( map.getLayer("Solids"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
 		add(walls);
 
+    add(projectiles);
 		add(front);
 
 		player = new Mobile(240, 260, AssetPaths.robot__png);
@@ -176,8 +194,8 @@ class PlayState extends FlxState
 		add(player);
 		mobiles.add(player);
 
-		enemies = new FlxTypedGroup();
-		add(enemies);
+		players = new FlxTypedGroup();
+		add(players);
 
     client.send("ClientRegister", "HELLO!!!");
 
@@ -195,8 +213,8 @@ class PlayState extends FlxState
 				var m = new Mobile(data.x, data.y, AssetPaths.robot__png);				
 				m.setHitBox();
 				m.client_id = data.client_id;
-				players.set(m.client_id, m);
-				enemies.add(m);
+				clients.set(m.client_id, m);
+				players.add(m);
 				mobiles.add(m);
 				trace('new');   		
     	}
@@ -205,15 +223,15 @@ class PlayState extends FlxState
     client.events.on( "PlayerUpdate", function (data) {
     	// trace('player_update', data.client_id, player.client_id);
     	if (data.client_id != player.client_id) {
-	    	var p = players.get(data.client_id);
+	    	var p = clients.get(data.client_id);
 	    	if (p != null) {
 	    		p.sync(data);
 	    	} else {
 	    		var m = new Mobile(data.x, data.y, AssetPaths.robot__png);
 	    		m.setHitBox();
 					m.client_id = data.client_id;
-					players.set(m.client_id, m);
-					enemies.add(m);
+					clients.set(m.client_id, m);
+					players.add(m);
 					mobiles.add(m);
 					trace('new (during sync)');   
 	    	}
@@ -255,16 +273,19 @@ class PlayState extends FlxState
 					FlxG.overlap( player, consoles, function ( player, console ) {
 						control_scheme = "weapons";
 						this.console = console;
-						shooting_angle = FlxAngle.TO_RAD * console.angle;
-						player.setPosition( console.origin.x + console.x - 16 * Math.cos( FlxAngle.TO_RAD * console.angle), console.origin.y + console.y - 16 * Math.sin( FlxAngle.TO_RAD * console.angle) );
+						shooting_angle = FlxAngle.TO_RAD * console.weapon.angle;
+						player.setPosition( 
+							2 + round( console.x - 16 * Math.cos( FlxAngle.TO_RAD * console.angle), 16 ), 
+							2 + round( console.y - 16 * Math.sin( FlxAngle.TO_RAD * console.angle), 16 ));
 						FlxTween.tween( FlxG.camera.targetOffset, { 
-							x: Math.cos( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 3, 
-							y: Math.sin( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 3 }, 
+							x: Math.cos( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 2, 
+							y: Math.sin( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 2 }, 
 							0.25, { onComplete: function (tween:FlxTween) {
 							}
 						});
-						// FlxTween.tween( FlxG.camera, { zoom: 0.5 },  0.25 );
+						FlxTween.tween( FlxG.camera, { zoom: 0.5 }, 0.25);
 						player.move('idle');
+						player.needs_updating = true;
 					});
 				}
 			#elseif (mobile || web)
@@ -296,18 +317,20 @@ class PlayState extends FlxState
 							trace('done camering', FlxG.camera.x, FlxG.camera.y);
 						}
 					});
-					// FlxTween.tween( FlxG.camera, { zoom: 1 },  0.25 );
+					FlxTween.tween( FlxG.camera, { zoom: 1 },  0.25 );
 				}
 
 				if ( FlxG.keys.pressed.RIGHT ) {
-					shooting_angle -= elapsed * 1;
+					shooting_angle = Math.max( shooting_angle - elapsed * 3, FlxAngle.TO_RAD * ( console.angle - 60 ) );
 				} else if ( FlxG.keys.pressed.LEFT ) {
-					shooting_angle += elapsed * 1;
+					shooting_angle = Math.min( shooting_angle + elapsed * 3, FlxAngle.TO_RAD * ( console.angle + 60 ) );
 				}
 
+				console.weapon.angle = FlxAngle.TO_DEG * shooting_angle;
+
 				if ( FlxG.keys.justPressed.SPACE ) {
-					shoot(console.x, console.y, shooting_angle);
-					client.send("Shoot", { client_id: player.client_id, x: console.x, y: console.y, angle: shooting_angle });
+					shoot( console.weapon.x + console.weapon.origin.x - 2, console.weapon.y + console.weapon.origin.y - 2, shooting_angle );
+					client.send("Shoot", { client_id: player.client_id, x: console.weapon.x + console.weapon.origin.x - 2, y: console.weapon.y + console.weapon.origin.y - 2, angle: shooting_angle });
 				}
 
 				// fix me: visible aiming of some kind
@@ -315,7 +338,7 @@ class PlayState extends FlxState
 		}
 
 		// fix me: since collisions can happen every frame, this can ALSO get laggy
-		FlxG.collide(player, enemies, function (player, enemy) {
+		FlxG.collide(player, players, function (player, enemy) {
 			player.needs_updating = true;
 		});
 
@@ -325,6 +348,12 @@ class PlayState extends FlxState
 
 		FlxG.collide(player, walls, function (player, wall) {
 			player.needs_updating = true;
+		});
+		FlxG.collide(players, walls);
+
+		FlxG.overlap(projectiles, enemies, function (projectile, enemy) {
+			projectile.kill();
+			enemy.kill();
 		});
 
 		if ( player != null && player.client_id != null && player.needs_updating == true ) {
