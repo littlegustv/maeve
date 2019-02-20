@@ -10,16 +10,17 @@ x- run server from game, if possible ('host'/'join' option)
 x- add auto-opening doors
 x- add weapons station
 	x- improve camera location, maybe change scaling, rotation? (wider view...)
-	- server event for use/stop using, and check to make sure only one can use at a time
+	x- server event for use/stop using, and check to make sure only one can use at a time
 	x- improve visibiliy/appearance of weapon, projectiles
 - add enemies (simple ship movement)
 - add lighting sprites, (blue, yellow, red)
 - improved tilemap
-	- some external decor (fins, engines)
+	x- some external decor (fins, engines)
 	- improve collisions (if possible)
 - fix bugs!
-	- weird dead player spawn on connect (extra object being added somewhere?) ... haven't seen in a while?
-	- positions of objects! (especially for locking-onto station)
+	x- on register, load all existing players (so you don't have to wait for them to start moving... )
+	x- weird dead player spawn on connect (extra object being added somewhere?) ... haven't seen in a while?
+	x- positions of objects! (especially for locking-onto station)
 	- better error handling for connection problems (host vs connect, e.g.)
 
 Station

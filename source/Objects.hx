@@ -15,8 +15,10 @@ class Fighter extends FlxSprite {
 	}
 }
 
-class WeaponsConsole extends FlxSprite {
+class Console extends FlxSprite {
 	public var weapon:FlxSprite;
+	public var user:Mobile;
+	public var uid:String;
 }
 
 class Hitbox extends FlxObject {
@@ -101,7 +103,7 @@ class Mobile extends FlxNestedSprite {
 				this.velocity.set(0, 0);
 		}
 		if (this.animation.name != this.movement) {
-			trace('hmm', this.animation.name, this.movement);
+			// trace('hmm', this.animation.name, this.movement);
 			this.needs_updating = true;
 		}
 		this.animation.play(this.movement);

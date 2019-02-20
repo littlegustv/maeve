@@ -83,6 +83,18 @@ class ConnectState extends FlxState
       server.broadcast( "PlayerUpdate", data );
     });
 
+    server.events.on("Station", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
+      server.broadcast( "Station", data );
+    });
+
+    server.events.on("UnStation", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
+      server.broadcast( "UnStation", data );
+    });
+
+    server.events.on("Alert", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
+      server.broadcast( "Alert", data );
+    });    
+
     server.start();
   }
   #end
