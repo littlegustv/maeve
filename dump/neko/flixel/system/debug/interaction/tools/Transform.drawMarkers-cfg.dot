@@ -1,0 +1,35 @@
+digraph graphname {
+n43638 [shape=box,label="(43638)\nScopes: 0\ngfx.endFill()"];
+n43637 [shape=box,label="(43637)\nScopes: 1, 0"];
+n43636 [shape=box,label="(43636)\nLoops: 0\nScopes: 2, 1, 0"];
+n43635 [shape=box,label="(43635)\nLoops: 0\nScopes: 5, 2, 1, 0\nvar tmp = this._markers[i].x - 1.5\nvar tmp = this._markers[i].y - 1.5\ngfx.drawRect(tmp, tmp, 3.0, 3.0)"];
+n43634 [shape=box,label="(43634)\nLoops: 0\nScopes: 4, 2, 1, 0\ngfx.drawCircle(this._markers[i].x, this._markers[i].y, 2.7)"];
+n43633 [shape=box,label="(43633)\nLoops: 0\nScopes: 2, 1, 0\n`1 = `1 + 1\nvar i = `1 - 1\nvar tmp = i == 0\n@:cond-branch tmp"];
+n43632 [shape=box,label="(43632)\nLoops: 0\nScopes: 3, 2, 1, 0\nbreak"];
+n43631 [shape=box,label="(43631)\nLoops: 0\nScopes: 2, 1, 0\nvar tmp = ! ((`1 < `))\n@:cond-branch tmp"];
+n43630 [shape=box,label="<loop-head>
+(43630)\nLoops: 0\nScopes: 2, 1, 0"];
+n43629 [shape=box,label="(43629)\nScopes: 1, 0\nwhile ((true)) @:block 43631"];
+n43628 [shape=box,label="(43628)\nScopes: 1, 0\nvar `1 = 0\nvar ` = this._markers.length"];
+n43627 [shape=box,label="<function-end>
+(43627)"];
+n43626 [shape=box,label="<function-begin>
+(43626)\nScopes: 0\ngfx.lineStyle(0.9, cast -65281, 1.0, false, cast 2, cast 2, null, null)\ngfx.beginFill(cast -65281, null)"];
+n1 [shape=box,label="<root>
+(1)"];
+n1 -> n43626[label="function"];
+n43626 -> n43628[label="goto"];
+n43628 -> n43629[label="goto"];
+n43629 -> n43630[label="goto"];
+n43630 -> n43631[label="goto"];
+n43631 -> n43633[label="else"];
+n43631 -> n43632[label="branch"];
+n43632 -> n43637[label="goto"];
+n43637 -> n43638[label="goto"];
+n43638 -> n43627[label="goto"];
+n43633 -> n43635[label="else"];
+n43633 -> n43634[label="branch"];
+n43634 -> n43636[label="goto"];
+n43636 -> n43630[label="goto"];
+n43635 -> n43636[label="goto"];
+}
