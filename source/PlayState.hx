@@ -36,41 +36,32 @@ import Objects;
 
 class PlayState extends FlxState
 {
-	var hosting:Bool = false;
-
 	var player:Mobile;
-	var clients:Map<String, Mobile> = new Map();
 
-	var mobiles:FlxTypedGroup<Mobile>;
+	var hosting:Bool = false;
+	var clients:Map<String, Mobile> = new Map();
+  var client:mphx.client.Client;
+  var frames_since_update:Int = 0;
 
 	var console:Console;
-	var consoles:FlxTypedGroup<Console>;
 	var control_scheme:String = "movement";
 	var shooting_angle:Float = 0;
-
+	
+	var mobiles:FlxTypedGroup<Mobile>;
+	var consoles:FlxTypedGroup<Console>;
 	var projectiles:FlxTypedGroup<FlxSprite>;
 	var enemy_projectiles:FlxTypedGroup<FlxSprite>;
 	var players:FlxTypedGroup<Mobile>;
 	var lights:FlxTypedGroup<FlxSprite>;
-	
 	var enemies:FlxTypedGroup<Enemy>;
+  var hitboxes:FlxTypedGroup<Hitbox>;
   
-  var registered:Bool = false;
-  var client:mphx.client.Client;
-  var connection_attempts:Int = 0;
-  var frames_since_update:Int = 0;
-
   var map:TiledMap;
   var walls:FlxTilemap;
 
   var back:FlxGroup;
   var front:FlxGroup;
-
-  var ship:FlxNestedSprite;
-
-  // fix me: rename as 'hitboxes' ?
-  var hitboxes:FlxTypedGroup<Hitbox>;
-
+  
   function round( n:Float, interval:Int = 1 ) {
   	return Math.round( n / interval ) * interval;
   }
@@ -179,13 +170,11 @@ class PlayState extends FlxState
 				var d:Dynamic = player.data();
 				d.console_uid = console.uid;
 				console.user = null;
-				trace( 'leaving station' );
 				client.send("UnStation", d);
 				FlxTween.tween( FlxG.camera.targetOffset, { 
 					x: 0, 
 					y: 0 },
 					0.25, { onComplete: function (tween:FlxTween) {
-						trace('done camering', FlxG.camera.x, FlxG.camera.y);
 					}
 				});
 				FlxTween.tween( FlxG.camera, { zoom: 1 },  0.25 );
@@ -248,15 +237,13 @@ class PlayState extends FlxState
 	    				0.5, { type: FlxTweenType.ONESHOT }
 	    			);
 	    			if (j == 1) {
-	    				// trace('playing sound!');
-		    			FlxG.sound.play(AssetPaths.door__wav, volume(hitbox));
+	    				FlxG.sound.play(AssetPaths.door__wav, volume(hitbox));
 	    			}
 	    		};
 	    		hitbox.restore = function () {
 	    			FlxTween.tween(door, { x: offsetx, y: offsety }, 0.5, { type: FlxTweenType.ONESHOT });
 	    			if (j == 1) {
-	    				// trace('playing sound!');
-		    			FlxG.sound.play(AssetPaths.door__wav, volume(hitbox));
+	    				FlxG.sound.play(AssetPaths.door__wav, volume(hitbox));
 	    			}
 	    		};
 	    		back.add(hitbox);
@@ -266,7 +253,6 @@ class PlayState extends FlxState
     		if ( objects[i].name == "Weapons" ) {
     			var console = new Console( objects[i].x - 4, objects[i].y - 4, AssetPaths.console__png );
     			console.uid = objects[i].type + i;
-    			// trace('added!', console.uid);
     			console.angle = Std.parseInt( objects[i].properties.angle );
     			consoles.add( console );
     			front.add( console );
@@ -345,7 +331,7 @@ class PlayState extends FlxState
 		walls.loadMapFromArray( cast( map.getLayer("Solids"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
 		add(walls);
 
-		player = new Mobile(240, 260, AssetPaths.robot__png);
+		player = new Mobile(176 + FlxG.random.int( -4, 4), 256 + FlxG.random.int( -4, 4), AssetPaths.robot__png);
 		player.move('idle');
 		player.setHitBox();
 
@@ -423,7 +409,7 @@ class PlayState extends FlxState
 					clients.set(m.client_id, m);
 					players.add(m);
 					mobiles.add(m);
-					trace('[ CLIENT ] New player created during SYNC (should not occur)');   
+					trace('[ CLIENT ] New player created during SYNC (should not occur ?)');   
 	    	}
     	}
     });

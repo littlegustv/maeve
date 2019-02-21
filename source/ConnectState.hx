@@ -39,6 +39,7 @@ class ConnectState extends FlxState
 
   #if ( neko || cpp )
     var clients:Map<mphx.connection.IConnection, String> = new Map();
+    var host:mphx.connection.IConnection;
     var server:mphx.server.impl.Server;
 
     function makeID () {
@@ -67,7 +68,12 @@ class ConnectState extends FlxState
       {
         var id = makeID();
         clients.set(sender, id);
-        trace( "[ SERVER ] Registered: ", id);
+        if ( data.hosting == true ) {
+          trace( "[ SERVER ] Registered new HOST: ", id);
+          this.host = sender;
+        } else {
+          trace( "[ SERVER ] Registered new CLIENT: ", id);
+        }        
         sender.send("RegisterSuccessful", { client_id: id });
       });
 
