@@ -6,6 +6,7 @@ import flixel.math.FlxPoint;
 import flixel.system.FlxAssets;
 import flixel.addons.display.FlxNestedSprite;
 import flixel.math.FlxAngle;
+import flixel.tweens.FlxTween;
 
 class Fighter extends FlxSprite {
 	public override function update( elapsed:Float ) {
@@ -13,6 +14,11 @@ class Fighter extends FlxSprite {
 		this.velocity.set( 150 * Math.cos( FlxAngle.TO_RAD * this.angle ), 150 * Math.sin( FlxAngle.TO_RAD * this.angle ));
 		super.update(elapsed);
 	}
+}
+
+class Enemy extends FlxSprite {
+	public var tween:FlxTween;
+	public var index:Int;
 }
 
 class Console extends FlxSprite {

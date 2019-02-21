@@ -53,7 +53,7 @@ class PlayState extends FlxState
 	var players:FlxTypedGroup<Mobile>;
 	var lights:FlxTypedGroup<FlxSprite>;
 	
-	var enemies:FlxTypedGroup<FlxSprite>;
+	var enemies:FlxTypedGroup<Enemy>;
   
   var registered:Bool = false;
   var client:mphx.client.Client;
@@ -95,11 +95,13 @@ class PlayState extends FlxState
   	return Math.max( 0, Math.min( 1, (160 - to.getPosition().distanceTo( player.getPosition() )) / 160 ));
   }
 
-  function create_enemy( i:Int ) {
-  	var e = new FlxSprite(32 - i * 32, -128 + i  * 32, AssetPaths.enemy__png);
+  function create_enemy( i:Int, percent:Float = 0 ) {
+  	var e = new Enemy(32 - i * 32, -128 + i  * 32, AssetPaths.enemy__png);
+  	// right now loop index is used for spawn location, and for passing to other clients
+  	e.index = i;
   	e.angle = 90;
-  	FlxTween.tween(e, {x: 256}, 3, { 
-  		startDelay: i * 0.5,
+  	e.tween = FlxTween.tween(e, {x: e.x + 256}, 3, { 
+  		startDelay: -1 * i * 0.5,
   		type: FlxTweenType.PINGPONG,
   		ease: FlxEase.cubeInOut,
   		onComplete: function ( tween:FlxTween ) {
@@ -109,9 +111,14 @@ class PlayState extends FlxState
   			enemy_projectiles.add( p );
   			front.add( p );
   			FlxG.sound.play( AssetPaths.shoot__wav );
-  		}});
+			}
+		});
   	enemies.add(e);
   	front.add(e);
+  	if ( percent != 0 ) {
+  		e.tween.percent = percent;
+  	}
+  	return e;
 	}
 
   public function new(client:mphx.client.Client, hosting:Bool = false) {
@@ -133,17 +140,11 @@ class PlayState extends FlxState
 	  consoles = new FlxTypedGroup<Console>();
 	  projectiles = new FlxTypedGroup<FlxSprite>();
 	  enemy_projectiles = new FlxTypedGroup<FlxSprite>();
-	  enemies = new FlxTypedGroup<FlxSprite>();
+	  enemies = new FlxTypedGroup<Enemy>();
 	  lights = new FlxTypedGroup<FlxSprite>();
 
 	  back = new FlxGroup();
 	  front = new FlxGroup();
-
-	  // enemy ships
-	  for (i in 0...4) {
-	  	create_enemy( i );
-	  	// client.send("CreateEnemy", { client_id: player.client_id, i: i });
-	  }
 
 		map = new TiledMap(AssetPaths.main__tmx);
 
@@ -236,6 +237,14 @@ class PlayState extends FlxState
 		add(player);
 		mobiles.add(player);
 
+	  // enemy ships
+	  if (this.hosting) {	  	
+		  for (i in 0...4) {
+		  	var e = create_enemy( i );
+		  	client.send("CreateEnemy", { client_id: player.client_id, i: i, percent: e.tween.percent });
+		  }
+	  }
+
 		players = new FlxTypedGroup();
 		add(players);
     
@@ -261,6 +270,9 @@ class PlayState extends FlxState
 				players.add(m);
 				mobiles.add(m);
 				client.send( "PlayerData", player.data() );
+			  for (e in enemies) {
+			  	client.send("CreateEnemy", { client_id: player.client_id, i: e.index, percent: e.tween.percent });
+			  }
 				trace('new');   		
     	}
     });
@@ -291,7 +303,7 @@ class PlayState extends FlxState
 
     client.events.on( "CreateEnemy", function ( data ) {
     	if ( data.client_id != player.client_id ) {
-    		create_enemy( data.i );
+    		create_enemy( data.i, data.percent );
     	}
     });
 
@@ -439,8 +451,9 @@ class PlayState extends FlxState
 		FlxG.collide(players, walls);
 
 		FlxG.overlap(projectiles, enemies, function (projectile, enemy) {
-			projectile.kill();
-			enemy.kill();
+			projectile.destroy();
+			enemy.tween.cancel();
+			enemy.destroy();
 		});
 
 		// look into this: https://github.com/HaxeFlixel/flixel-demos/blob/master/Features/SetTileProperties/source/PlayState.hx
