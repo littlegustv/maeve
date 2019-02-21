@@ -13,7 +13,7 @@ x- add weapons station
 	x- server event for use/stop using, and check to make sure only one can use at a time
 	x- improve visibiliy/appearance of weapon, projectiles
 - add enemies (simple ship movement)
-- add lighting sprites, (blue, yellow, red)
+x- add lighting sprites, (blue, yellow, red)
 - improved tilemap
 	x- some external decor (fins, engines)
 	- improve collisions (if possible)
@@ -22,11 +22,12 @@ x- add weapons station
 	x- weird dead player spawn on connect (extra object being added somewhere?) ... haven't seen in a while?
 	x- positions of objects! (especially for locking-onto station)
 	- better error handling for connection problems (host vs connect, e.g.)
+	- spawn handling (avoid stacking on top of each other)
 
 Station
  x- walk around inside ship
  x- weapon stations
  - enemy patterns
  - damage and repair
- - active shiels (toggle switch)
+ - active shield (knob you can turn to aim shields from center of station, maybe - to start?)
  - fighters

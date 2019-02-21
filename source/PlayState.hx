@@ -27,6 +27,7 @@ import flixel.addons.display.FlxNestedSprite;
 
 import flixel.math.FlxAngle;
 import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
 
 import flixel.tile.FlxTilemap;
 import flixel.tile.FlxBaseTilemap;
@@ -35,6 +36,8 @@ import Objects;
 
 class PlayState extends FlxState
 {
+	var hosting:Bool = false;
+
 	var player:Mobile;
 	var clients:Map<String, Mobile> = new Map();
 
@@ -46,6 +49,7 @@ class PlayState extends FlxState
 	var shooting_angle:Float = 0;
 
 	var projectiles:FlxTypedGroup<FlxSprite>;
+	var enemy_projectiles:FlxTypedGroup<FlxSprite>;
 	var players:FlxTypedGroup<Mobile>;
 	var lights:FlxTypedGroup<FlxSprite>;
 	
@@ -91,9 +95,29 @@ class PlayState extends FlxState
   	return Math.max( 0, Math.min( 1, (160 - to.getPosition().distanceTo( player.getPosition() )) / 160 ));
   }
 
-  public function new(client:mphx.client.Client) {
+  function create_enemy( i:Int ) {
+  	var e = new FlxSprite(32 - i * 32, -128 + i  * 32, AssetPaths.enemy__png);
+  	e.angle = 90;
+  	FlxTween.tween(e, {x: 256}, 3, { 
+  		startDelay: i * 0.5,
+  		type: FlxTweenType.PINGPONG,
+  		ease: FlxEase.cubeInOut,
+  		onComplete: function ( tween:FlxTween ) {
+  			var p = new FlxSprite( e.x, e.y, AssetPaths.projectile__png );
+  			p.angle = 90;
+  			p.velocity.set( 0, 200 );
+  			enemy_projectiles.add( p );
+  			front.add( p );
+  			FlxG.sound.play( AssetPaths.shoot__wav );
+  		}});
+  	enemies.add(e);
+  	front.add(e);
+	}
+
+  public function new(client:mphx.client.Client, hosting:Bool = false) {
   	super();
   	this.client = client;
+  	this.hosting = hosting;
   }
 
 	override public function create():Void
@@ -108,6 +132,7 @@ class PlayState extends FlxState
 	  mobiles = new FlxTypedGroup<Mobile>();
 	  consoles = new FlxTypedGroup<Console>();
 	  projectiles = new FlxTypedGroup<FlxSprite>();
+	  enemy_projectiles = new FlxTypedGroup<FlxSprite>();
 	  enemies = new FlxTypedGroup<FlxSprite>();
 	  lights = new FlxTypedGroup<FlxSprite>();
 
@@ -115,12 +140,10 @@ class PlayState extends FlxState
 	  front = new FlxGroup();
 
 	  // enemy ships
-	  for (i in 0...2) {
-	  	var e = new Fighter(0, 0, AssetPaths.enemy__png);
-	  	enemies.add(e);
-	  	front.add(e);
+	  for (i in 0...4) {
+	  	create_enemy( i );
+	  	// client.send("CreateEnemy", { client_id: player.client_id, i: i });
 	  }
-
 
 		map = new TiledMap(AssetPaths.main__tmx);
 
@@ -263,6 +286,12 @@ class PlayState extends FlxState
     client.events.on( "Shoot", function ( data ) {
     	if ( data.client_id != player.client_id ) {
     		shoot( data.x, data.y, data.angle );
+    	}
+    });
+
+    client.events.on( "CreateEnemy", function ( data ) {
+    	if ( data.client_id != player.client_id ) {
+    		create_enemy( data.i );
     	}
     });
 
@@ -412,6 +441,16 @@ class PlayState extends FlxState
 		FlxG.overlap(projectiles, enemies, function (projectile, enemy) {
 			projectile.kill();
 			enemy.kill();
+		});
+
+		// look into this: https://github.com/HaxeFlixel/flixel-demos/blob/master/Features/SetTileProperties/source/PlayState.hx
+		//  ( as preferred way of handling this? )
+		// eventually: maybe a 'damage' tilemap on top, so each tile has multiple stages of damage?
+		FlxG.collide( walls, enemy_projectiles, function ( tilemap, projectile ) {
+			var x = Math.round(( projectile.x - walls.x ) / 16 );
+			var y = Math.round(( projectile.y - walls.y ) / 16 );
+			walls.setTile(x, y, 0);
+			projectile.kill();
 		});
 
 		if ( player != null && player.client_id != null && player.needs_updating == true ) {

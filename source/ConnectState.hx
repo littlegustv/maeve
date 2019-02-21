@@ -30,6 +30,8 @@ class ConnectState extends FlxState
   var PORT:Int = 8000;
   var HOST:String = "127.0.0.1";
 
+  var hosting:Bool = false;
+
   #if ( neko || cpp )
   // var clients:Array<mphx.connection.IConnection> = new Array();
   var clients:Map<String, mphx.connection.IConnection> = new Map();
@@ -95,6 +97,10 @@ class ConnectState extends FlxState
       server.broadcast( "Alert", data );
     });    
 
+    server.events.on("CreateEnemy", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
+      server.broadcast( "CreateEnemy", data );
+    });    
+
     server.start();
   }
   #end
@@ -114,7 +120,7 @@ class ConnectState extends FlxState
     };
     client.onConnectionEstablished = function () {
     	trace("CLIENT: Connection Established");
-      FlxG.switchState(new PlayState(client));
+      FlxG.switchState(new PlayState(client, hosting));
     };
     client.connect();
   }
@@ -143,8 +149,9 @@ class ConnectState extends FlxState
 			var host_button = new FlxUIButton( 92, 50, "HOST", function () {
 				connect_button.kill();
 				HOST = choose_host.text;
-				Thread.create(this.start_server);
-				connect();
+        this.hosting = true;
+        Thread.create(this.start_server);
+        connect();
 				// this.start_server();
 			});
 			add(host_button);
