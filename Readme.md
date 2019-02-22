@@ -1,12 +1,12 @@
 Follow the instructions <a href="https://haxe.org/videos/tutorials/haxeflixel-tutorial-series/1-getting-started.html" target="_blank">here</a>, to install haxe and haxelib.
 
 Haxelib Library Versions:
-    lime: 7.2.1
-    openfl: 8.8.0
-    flixel: 4.6.0
-    flixel-ui: 2.3.2
-    flixel-addons: 2.7.3
-    mphx: git [ https://github.com/galoyo/mphx.git ]
+ - lime: 7.2.1
+ - openfl: 8.8.0
+ - flixel: 4.6.0
+ - flixel-ui: 2.3.2
+ - flixel-addons: 2.7.3
+ - mphx: git [ https://github.com/galoyo/mphx.git ]
 
 #### TODO LIST:
 
