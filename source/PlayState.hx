@@ -15,6 +15,7 @@ import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.group.FlxGroup;
 import flixel.util.FlxColor;
+import flixel.math.FlxPoint;
 
 // Tilemap stuff
 
@@ -204,9 +205,23 @@ class PlayState extends FlxState
 	  if (this.hosting) {	  	
 		  for (i in 0...4) {
 		  	var e = create_enemy( i );
+		  	// FIX ME: this might be loading wrong on other clients when TWEEN is in second (PINGPONG) phase ??
 		  	client.send("CreateEnemy", { client_id: player.client_id, i: i, percent: e.tween.percent });
 		  }
 	  }
+	}
+
+	function do_explosion ( x:Float, y:Float ) {
+		var explosion = new FlxSprite(x, y);
+		explosion.loadGraphic( AssetPaths.explosion__png, true, 32, 32 );
+		explosion.animation.add( "main", [0, 1, 2, 3, 4, 5, 6, 7], 10, false );
+		explosion.animation.play( "main" );
+		FlxG.sound.play( AssetPaths.explode__wav, volume(explosion) );
+		explosion.animation.finishCallback = function( s:String ) {
+       front.remove( explosion );
+       explosion.destroy();
+    }
+		front.add( explosion );
 	}
 
 	function load_objects( map:TiledMap ) {
@@ -500,6 +515,7 @@ class PlayState extends FlxState
 			enemy.tween.cancel();
 			enemies.remove( enemy, true );
 			enemy.destroy();
+			do_explosion( enemy.x, enemy.y );
 		});
 
 		// fix me: look into this: https://github.com/HaxeFlixel/flixel-demos/blob/master/Features/SetTileProperties/source/PlayState.hx
@@ -509,8 +525,10 @@ class PlayState extends FlxState
 			var x = Math.round(( projectile.x - walls.x ) / 16 );
 			var y = Math.round(( projectile.y - walls.y ) / 16 );
 			walls.setTile(x, y, 0);
+			do_explosion( projectile.x, projectile.y );
 			projectile.kill();
 		});
+
 
 		/*
 			We only update AT MOST every other frame.  Seems fine for connectivitiy, and is WAY easier on the server.

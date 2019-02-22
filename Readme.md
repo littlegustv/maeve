@@ -1,15 +1,33 @@
 Follow the instructions <a href="https://haxe.org/videos/tutorials/haxeflixel-tutorial-series/1-getting-started.html" target="_blank">here</a>, to install haxe and haxelib.
 
-Install lime version 6.4.0 and openfl version 8.4.0 (haxelib install lime 6.4.0 and then haxelib set lime 6.4.0) 
+Haxelib Library Versions:
+lime: 7.2.1
+openfl: 8.8.0
+flixel: 4.6.0
+flixel-ui: 2.3.2
+flixel-addons: 2.7.3
+mphx: git [ https://github.com/galoyo/mphx.git ]
 
-Collaboration checklist:
-- code cleanup
-	- more modular enemy-spawn, console systems
-	- more modular, consistent client/server communication
-- better error handling for connection problems (host vs connect, e.g.)
-- spawn handling (avoid stacking on top of each other)
-	- spawn 'objects' i.e. teleporter pads
-	- if NOT host, on JOIN get a list of existing players
-	- don't spawn on occupied pads?
-- improved tilemap
-	- improve collisions (if possible)
+#### TODO LIST:
+
+Server:
+ - http://old.haxe.org/doc/neko/client_server
+ - (more threading for handling high server load)
+ - SSL server to allow for websockets to connect
+
+Game:
+ - enemy behavior and wave spawning
+ - better ship damage effect & repair action
+ - shield controls
+ - personal fighters
+ - more/better weapon types
+
+Visuals:
+ - new sprites!
+ - new tileset!
+ - new tilemap layout for main ship!
+
+Misc:
+ - chat wheel!
+ - ability to quit/rejoin/rehost from with game
+ - volume control/toggle
