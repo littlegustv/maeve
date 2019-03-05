@@ -25,6 +25,7 @@ class Console extends FlxSprite {
 	public var weapon:FlxSprite;
 	public var user:Mobile;
 	public var uid:String;
+	public var type:String = "weapons";
 }
 
 class Hitbox extends FlxObject {

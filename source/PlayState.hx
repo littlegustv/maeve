@@ -47,7 +47,9 @@ class PlayState extends FlxState
 	var console:Console;
 	var control_scheme:String = "movement";
 	var shooting_angle:Float = 0;
-	
+	var shields_index:Int = 0;
+	var shields_power:Float = 1.0;
+
 	var mobiles:FlxTypedGroup<Mobile>;
 	var consoles:FlxTypedGroup<Console>;
 	var projectiles:FlxTypedGroup<FlxSprite>;
@@ -60,11 +62,20 @@ class PlayState extends FlxState
   var map:TiledMap;
   var walls:FlxTilemap;
   var damage:FlxTilemap;
-  var shields:FlxTilemap;
+  var passive_shields:FlxTilemap;
+  var active_shields:FlxTilemap;
 
   var back:FlxGroup;
   var front:FlxGroup;
   
+  function modulo ( n:Int, interval:Int = 1 ) {
+  	n = n % interval;
+  	if ( n < 0 ) {
+  		n = n + interval;
+  	}
+  	return n;
+  }
+
   function round( n:Float, interval:Int = 1 ) {
   	return Math.round( n / interval ) * interval;
   }
@@ -90,7 +101,7 @@ class PlayState extends FlxState
   }
 
   function create_enemy( i:Int, percent:Float = 0 ) {
-  	var e = new Enemy(32 - i * 32, -128 + i  * 32, AssetPaths.enemy__png);
+  	var e = new Enemy(32 - i * 32, -200 + i  * 32, AssetPaths.enemy__png);
   	// right now loop index is used for spawn location, and for passing to other clients
   	e.index = i;
   	e.angle = 90;
@@ -140,20 +151,29 @@ class PlayState extends FlxState
 			if ( FlxG.keys.justPressed.F ) {
 				FlxG.overlap( player, consoles, function ( player, console:Console ) {
 					if ( console.user == null ) {
-						control_scheme = "weapons";
+						control_scheme = console.type;
 						this.console = console;
-						this.console.user = player;						
-						shooting_angle = FlxAngle.TO_RAD * console.weapon.angle;
+						this.console.user = player;
+						if ( control_scheme == "weapons" ) {
+							shooting_angle = FlxAngle.TO_RAD * console.weapon.angle;							
+							FlxTween.tween( FlxG.camera, { zoom: 0.5 }, 0.25);
+							FlxTween.tween( FlxG.camera.targetOffset, { 
+								x: Math.cos( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 2, 
+								y: Math.sin( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 2 }, 
+								0.25, { onComplete: function (tween:FlxTween) {
+								}
+							});
+						} else if ( control_scheme == "shields" ) {
+							FlxTween.tween( FlxG.camera, { zoom: 0.25 }, 0.25);
+							var dx = active_shields.width / 2 - player.x;
+							var dy = active_shields.height / 2 - player.y;
+							FlxTween.tween( FlxG.camera.targetOffset, { x: dx, y: dy }, 0.25 );
+							do_active_shields();
+						}
 						player.setPosition( 
 							2 + round( console.x - 16 * Math.cos( FlxAngle.TO_RAD * console.angle), 16 ), 
-							2 + round( console.y - 16 * Math.sin( FlxAngle.TO_RAD * console.angle), 16 ));
-						FlxTween.tween( FlxG.camera.targetOffset, { 
-							x: Math.cos( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 2, 
-							y: Math.sin( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 2 }, 
-							0.25, { onComplete: function (tween:FlxTween) {
-							}
-						});
-						FlxTween.tween( FlxG.camera, { zoom: 0.5 }, 0.25);
+							2 + round( console.y - 16 * Math.sin( FlxAngle.TO_RAD * console.angle), 16 )
+						);						
 						player.move('idle');
 						var d:Dynamic = player.data();
 						d.console_uid = console.uid;
@@ -164,6 +184,65 @@ class PlayState extends FlxState
 				});
 			}
 		#end
+	}
+
+	function set_shield_tile ( index:Int, value:Int = 2 ) {
+		if ( index < active_shields.widthInTiles ) {
+			active_shields.setTile( index, 0, value );
+		} else if ( index < active_shields.widthInTiles + active_shields.heightInTiles ) {
+			active_shields.setTile( active_shields.widthInTiles - 1, index - active_shields.widthInTiles, value);
+		} else if ( index < 2 * active_shields.widthInTiles + active_shields.heightInTiles ) {
+			active_shields.setTile( active_shields.widthInTiles - (index - ( active_shields.widthInTiles + active_shields.heightInTiles )), active_shields.heightInTiles - 1, value);
+		} else if ( index < 2 * active_shields.widthInTiles + 2 * active_shields.heightInTiles ) {
+			active_shields.setTile( 0, active_shields.heightInTiles - ( index  - ( 2 * active_shields.widthInTiles + active_shields.heightInTiles ) ), value);
+		}
+	}
+
+	function do_active_shields () {
+		for ( i in -2...3 ) {
+			set_shield_tile( modulo( ( shields_index + i ), ( 2 * active_shields.widthInTiles + 2 * active_shields.heightInTiles ) ), 1 );
+		}
+	}
+
+	function do_empty_shields () {
+		for ( i in -2...3 ) {
+			set_shield_tile( modulo( ( shields_index + i ), ( 2 * active_shields.widthInTiles + 2 * active_shields.heightInTiles ) ), 0 );
+		}
+	}
+
+	function do_shields_controls ( elapsed:Float ) {
+		#if (desktop || web)
+			if ( FlxG.keys.justPressed.F ) {
+				control_scheme = "movement";
+				var d:Dynamic = player.data();
+				d.console_uid = console.uid;
+				console.user = null;
+				client.send("UnStation", d);
+				do_empty_shields();
+				FlxTween.tween( FlxG.camera.targetOffset, { 
+					x: 0, 
+					y: 0 },
+					0.25, { onComplete: function (tween:FlxTween) {
+					}
+				});
+				FlxTween.tween( FlxG.camera, { zoom: 1 },  0.25 );
+			}
+			var update_shields = false;
+			if ( FlxG.keys.justPressed.RIGHT ) {
+				update_shields = true;
+				do_empty_shields();
+				shields_index = modulo(( shields_index + 1 ), ( 2 * active_shields.widthInTiles + 2 * active_shields.heightInTiles ));
+			}
+			if ( FlxG.keys.justPressed.LEFT ) {
+				update_shields = true;
+				do_empty_shields();				
+				shields_index = modulo(( shields_index - 1 ), ( 2 * active_shields.widthInTiles + 2 * active_shields.heightInTiles ));
+			}
+
+		#end
+		if ( update_shields == true ) {
+			do_active_shields();
+		}
 	}
 
 	function do_weapons_controls ( elapsed:Float ) {
@@ -268,9 +347,10 @@ class PlayState extends FlxState
     		}
     	} else if ( objects[i].type == "Console" ) {
     		if ( objects[i].name == "Weapons" ) {
-    			var console = new Console( objects[i].x - 4, objects[i].y - 4, AssetPaths.console__png );
+    			var console = new Console( objects[i].x - 4, objects[i].y - 4, AssetPaths.weaponsconsole__png );
     			console.uid = objects[i].type + i;
     			console.angle = Std.parseInt( objects[i].properties.angle );
+    			console.type = "weapons";
     			consoles.add( console );
     			front.add( console );
 
@@ -279,6 +359,13 @@ class PlayState extends FlxState
     			front.add(turret);
 
     			console.weapon = turret;
+    		} else if ( objects[i].name == "Shields" ) {
+    			var console = new Console( objects[i].x - 4, objects[i].y - 4, AssetPaths.console__png );
+    			console.uid = objects[i].type + i;
+    			console.angle = Std.parseInt( objects[i].properties.angle );
+    			console.type = "shields";
+    			consoles.add( console );
+    			front.add( console );
     		}
     	}
     }
@@ -365,10 +452,14 @@ class PlayState extends FlxState
 		damage.loadMapFromArray( cast( map.getLayer("Damage"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.damage__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
 		add(damage);
 
-		shields = new FlxTilemap();
-		shields.loadMapFromArray( cast( map.getLayer("Shields"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
-		shields.alpha = 0.5;
-		add(shields);
+		passive_shields = new FlxTilemap();
+		passive_shields.loadMapFromArray( cast( map.getLayer("Shields"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
+		passive_shields.alpha = 0.5;
+		add(passive_shields);
+
+		active_shields = new FlxTilemap();
+		active_shields.loadMapFromArray( cast( map.getLayer("Damage"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.shields__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
+		add(active_shields);
 
 		player = new Mobile(176 + FlxG.random.int( -4, 4), 256 + FlxG.random.int( -4, 4), AssetPaths.robot__png);
 		player.move('idle');
@@ -541,6 +632,10 @@ class PlayState extends FlxState
 			
 			do_weapons_controls( elapsed );
 
+		} else if ( control_scheme == "shields" ) {
+
+			do_shields_controls( elapsed );
+
 		}
 
 		FlxG.collide( player, players, function ( player, enemy ) {
@@ -566,7 +661,6 @@ class PlayState extends FlxState
 
 		// fix me: look into this: https://github.com/HaxeFlixel/flixel-demos/blob/master/Features/SetTileProperties/source/PlayState.hx
 		//  ( as preferred way of handling this? )
-		// eventually: maybe a 'damage' tilemap on top, so each tile has multiple stages of damage?
 		FlxG.collide( walls, enemy_projectiles, function ( tilemap, projectile ) {
 			var x = Math.round(( projectile.x - walls.x ) / 16 );
 			var y = Math.round(( projectile.y - walls.y ) / 16 );
@@ -577,6 +671,10 @@ class PlayState extends FlxState
 			projectile.kill();
 		});
 
+		FlxG.collide( active_shields, enemy_projectiles, function ( tilemap, projectile ) {
+			do_explosion( projectile.x, projectile.y );
+			projectile.kill();
+		});
 
 		/*
 			We only update AT MOST every other frame.  Seems fine for connectivitiy, and is WAY easier on the server.
