@@ -697,10 +697,22 @@ class PlayState extends FlxState
 			projectile.kill();
 		});
 
-		FlxG.collide( active_shields, enemy_projectiles, function ( tilemap, projectile ) {
-			do_explosion( projectile.x, projectile.y );
-			projectile.kill();
-		});
+		if ( shields_active ) {			
+			FlxG.collide( active_shields, enemy_projectiles, function ( tilemap, projectile ) {
+				projectile.kill();
+				FlxG.sound.play(AssetPaths.shield_hit__wav);
+			});
+		} else if ( passive_shields.alpha >= 0.5 ) {
+			FlxG.collide( passive_shields, enemy_projectiles, function ( tilemap, projectile ) {
+				projectile.kill();
+				FlxG.sound.play(AssetPaths.shield_hit__wav);
+				tilemap.alpha = 0.1;
+			});
+		}
+
+		if ( passive_shields.alpha < 0.5 ) {
+			passive_shields.alpha += elapsed * 0.2;
+		}
 
 		/*
 			We only update AT MOST every other frame.  Seems fine for connectivitiy, and is WAY easier on the server.
