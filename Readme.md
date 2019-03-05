@@ -1,6 +1,19 @@
 Follow the instructions <a href="https://haxe.org/videos/tutorials/haxeflixel-tutorial-series/1-getting-started.html" target="_blank">here</a>, to install haxe and haxelib.
 
-Haxelib Library Versions:
+#### Oscar's detailed Windows install
+(that works without specifying any library version numbers)
+
+After installing haxe and haxelib:
+ - haxe install openfl
+ - haxe git mphx https://github.com/galoyo/mphx.git
+ 
+Install Visual Studio Community 2017, adding the following components:
+ - Under Workloads, check "Desktop development with C++"
+ - Under Individual components, make sure "VC++ 2017 version 15.9 v14.16 latest v141 tools" is checked
+ 
+lime test windows should now work without any other customization.
+
+#### Benny's specific library versions:
  - lime: 7.2.1
  - openfl: 8.8.0
  - flixel: 4.6.0
