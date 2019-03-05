@@ -59,6 +59,8 @@ class PlayState extends FlxState
   
   var map:TiledMap;
   var walls:FlxTilemap;
+  var damage:FlxTilemap;
+  var shields:FlxTilemap;
 
   var back:FlxGroup;
   var front:FlxGroup;
@@ -282,6 +284,18 @@ class PlayState extends FlxState
     }
 	}
 
+	function damage_walls ( x:Int, y:Int, amount:Int = 1 ) {
+			
+			var current = damage.getTile( x, y );
+			if ( current < 2 ) {
+				damage.setTile( x, y, current + amount );				
+			} else {
+				damage.setTile( x, y, 0 );
+				walls.setTile( x, y, 0 );
+			}
+
+	}
+
   public function new(client:mphx.client.Client, hosting:Bool = false) {
   	super();
   	this.client = client;
@@ -346,6 +360,16 @@ class PlayState extends FlxState
 		walls.loadMapFromArray( cast( map.getLayer("Solids"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
 		add(walls);
 
+		damage = new FlxTilemap();
+		// just gets the dimensions, really, since this layer should be empty
+		damage.loadMapFromArray( cast( map.getLayer("Damage"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.damage__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
+		add(damage);
+
+		shields = new FlxTilemap();
+		shields.loadMapFromArray( cast( map.getLayer("Shields"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
+		shields.alpha = 0.5;
+		add(shields);
+
 		player = new Mobile(176 + FlxG.random.int( -4, 4), 256 + FlxG.random.int( -4, 4), AssetPaths.robot__png);
 		player.move('idle');
 		player.setHitBox();
@@ -393,6 +417,14 @@ class PlayState extends FlxState
 	  	client.send("Join", {client_id: player.client_id, x: player.x, y: player.y});
     });
 
+    client.events.on( "SyncDamage", function (data) {
+    	for ( d in cast( data.damage, Array<Dynamic> ) ) {
+    		// damage_walls( data.damage[i].x, data.damage[i].y, data.damage[i].damage );
+    		damage_walls( d.x, d.y, d.damage );
+    	}
+    	trace("Syncing damage: client side");
+    });
+
     client.events.on("Join", function (data) {
     	if (player.client_id != data.client_id) {
 				var m = new Mobile(data.x, data.y, AssetPaths.robot__png);				
@@ -402,6 +434,20 @@ class PlayState extends FlxState
 				players.add(m);
 				mobiles.add(m);
 				client.send( "PlayerData", player.data() );
+				if ( this.hosting ) {					
+					var d:Dynamic = { client_id: data.client_id };
+					d.damage = new Array<Dynamic>();
+					for ( i in 0...damage.widthInTiles ) {
+						for ( j in 0...damage.heightInTiles ) {
+							var c = damage.getTile( i, j );
+							if ( c > 0 ) {
+								d.damage.push( { x: i, y: j, damage: c } );
+							}
+						}
+					}
+					trace("Syncing damage, host side ", d );
+					client.send( "SyncDamage", d );
+				}
 			  for (e in enemies) {
 			  	client.send("CreateEnemy", { client_id: player.client_id, i: e.index, percent: e.tween.percent });
 			  }
@@ -524,7 +570,9 @@ class PlayState extends FlxState
 		FlxG.collide( walls, enemy_projectiles, function ( tilemap, projectile ) {
 			var x = Math.round(( projectile.x - walls.x ) / 16 );
 			var y = Math.round(( projectile.y - walls.y ) / 16 );
-			walls.setTile(x, y, 0);
+
+			damage_walls( x, y );
+
 			do_explosion( projectile.x, projectile.y );
 			projectile.kill();
 		});

@@ -38,7 +38,7 @@ class ConnectState extends FlxState
    */
 
   #if ( neko || cpp )
-    var clients:Map<mphx.connection.IConnection, String> = new Map();
+    var clients:Map<String, mphx.connection.IConnection> = new Map();
     var host:mphx.connection.IConnection;
     var server:mphx.server.impl.Server;
 
@@ -60,14 +60,19 @@ class ConnectState extends FlxState
       };
 
       server.onConnectionClose =function ( reason:String, sender:mphx.connection.IConnection ) {
-        trace("[ SERVER ] Connection Closed: ", reason);
-        server.broadcast( "Leave", { client_id: clients.get( sender ) } );
+        trace("[ SERVER ] Connection Closed: ", reason);        
+        for ( client in clients.keys() ) {
+          if ( clients.get( client ) == sender ) {
+            server.broadcast( "Leave", { client_id: client } );
+            break;
+          }
+        }
       };
 
       server.events.on("RegisterNewClient", function( data:Dynamic, sender:mphx.connection.IConnection )
       {
         var id = makeID();
-        clients.set(sender, id);
+        clients.set( id, sender );
         if ( data.hosting == true ) {
           trace( "[ SERVER ] Registered new HOST: ", id);
           this.host = sender;
@@ -79,6 +84,11 @@ class ConnectState extends FlxState
 
       server.events.on("Join", function( data:Dynamic, sender:mphx.connection.IConnection ) {
         server.broadcast( "Join", data );
+      });
+
+      server.events.on("SyncDamage", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
+        trace("Syncing damage: server side");
+        clients.get( data.client_id ).send( "SyncDamage", data );
       });
 
       server.events.on( "Shoot", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
