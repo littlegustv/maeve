@@ -48,7 +48,7 @@ class PlayState extends FlxState
 	var control_scheme:String = "movement";
 	var shooting_angle:Float = 0;
 	var shields_index:Int = 0;
-	var shields_power:Float = 1.0;
+	var shields_active:Bool = false;
 
 	var mobiles:FlxTypedGroup<Mobile>;
 	var consoles:FlxTypedGroup<Console>;
@@ -123,6 +123,7 @@ class PlayState extends FlxState
   	if ( percent != 0 ) {
   		e.tween.percent = percent;
   	}
+  	trace( "[CLIENT] Synced enemy! ", percent, e.tween.percent, Date.now().toString() );
   	return e;
 	}
 
@@ -168,7 +169,9 @@ class PlayState extends FlxState
 							var dx = active_shields.width / 2 - player.x;
 							var dy = active_shields.height / 2 - player.y;
 							FlxTween.tween( FlxG.camera.targetOffset, { x: dx, y: dy }, 0.25 );
-							do_active_shields();
+							do_active_shields( 0 );
+							var d:Dynamic = { client_id: player.client_id, move: 0 };
+							client.send( "MoveShields" , d );
 						}
 						player.setPosition( 
 							2 + round( console.x - 16 * Math.cos( FlxAngle.TO_RAD * console.angle), 16 ), 
@@ -198,13 +201,17 @@ class PlayState extends FlxState
 		}
 	}
 
-	function do_active_shields () {
+	function do_active_shields ( move:Int = 0 ) {
+		do_empty_shields();
+		shields_active = true;
+		shields_index = modulo(( shields_index + move ), ( 2 * active_shields.widthInTiles + 2 * active_shields.heightInTiles ));
 		for ( i in -2...3 ) {
 			set_shield_tile( modulo( ( shields_index + i ), ( 2 * active_shields.widthInTiles + 2 * active_shields.heightInTiles ) ), 1 );
 		}
 	}
 
 	function do_empty_shields () {
+		shields_active = false;
 		for ( i in -2...3 ) {
 			set_shield_tile( modulo( ( shields_index + i ), ( 2 * active_shields.widthInTiles + 2 * active_shields.heightInTiles ) ), 0 );
 		}
@@ -227,21 +234,19 @@ class PlayState extends FlxState
 				});
 				FlxTween.tween( FlxG.camera, { zoom: 1 },  0.25 );
 			}
-			var update_shields = false;
+			var move = 0;
 			if ( FlxG.keys.justPressed.RIGHT ) {
-				update_shields = true;
-				do_empty_shields();
-				shields_index = modulo(( shields_index + 1 ), ( 2 * active_shields.widthInTiles + 2 * active_shields.heightInTiles ));
+				move = 1;
 			}
 			if ( FlxG.keys.justPressed.LEFT ) {
-				update_shields = true;
-				do_empty_shields();				
-				shields_index = modulo(( shields_index - 1 ), ( 2 * active_shields.widthInTiles + 2 * active_shields.heightInTiles ));
+				move = -1;
 			}
 
 		#end
-		if ( update_shields == true ) {
-			do_active_shields();
+		if ( move != 0 ) {
+			do_active_shields( move );
+			var d:Dynamic = { client_id: player.client_id, move: move };
+			client.send( "MoveShields", d );
 		}
 	}
 
@@ -283,7 +288,8 @@ class PlayState extends FlxState
 	 */
 
 	function spawn_wave () {
-	  if (this.hosting) {	  	
+	  if (this.hosting) {
+		  FlxG.sound.play( AssetPaths.wave__wav );				  	
 		  for (i in 0...4) {
 		  	var e = create_enemy( i );
 		  	// FIX ME: this might be loading wrong on other clients when TWEEN is in second (PINGPONG) phase ??
@@ -489,6 +495,16 @@ class PlayState extends FlxState
     	FIX ME: different behavior is HOSTING
      */
 
+		client.events.on( "MoveShields" , function ( data ) {
+    	if (player.client_id != data.client_id) {
+    		do_active_shields( data.move );
+    	}
+		});
+
+		client.events.on( "SyncShields" , function ( data ) {
+  		do_active_shields( data.move );
+		});
+
     client.events.on( "Leave", function ( data ) {
     	trace("[ CLIENT ] Player disconnected. ", data.client_id );
     	var p = clients.get( data.client_id );
@@ -538,9 +554,14 @@ class PlayState extends FlxState
 					}
 					trace("Syncing damage, host side ", d );
 					client.send( "SyncDamage", d );
+					if ( this.shields_active ) {
+						trace(' syncing shields ');
+						client.send( "SyncShields",  { client_id: data.client_id, move: shields_index } );
+					}
 				}
 			  for (e in enemies) {
-			  	client.send("CreateEnemy", { client_id: player.client_id, i: e.index, percent: e.tween.percent });
+			  	client.send("SyncEnemy", { client_id: data.client_id, i: e.index, percent: e.tween.percent });
+	  	  	trace( "[HOST] Synced enemy! ", e.tween.percent, Date.now().toString() );
 			  }
 	    	trace('[ CLIENT ] New player joined');
     	} else {
@@ -578,6 +599,10 @@ class PlayState extends FlxState
     		trace( '[ CLIENT ] Created enemy' );
     		create_enemy( data.i, data.percent );
     	}
+    });
+
+    client.events.on( "SyncEnemy", function ( data ) {
+  		create_enemy( data.i, data.percent );
     });
 
     // note: different approach used here: command goes THROUGh the server before it even gets runs by the sender
@@ -694,7 +719,6 @@ class PlayState extends FlxState
 		 */ 
 
 		if ( enemies.length <= 0 ) {
-			FlxG.sound.play( AssetPaths.wave__wav );
 			spawn_wave();
 		}
 

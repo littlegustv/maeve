@@ -91,6 +91,16 @@ class ConnectState extends FlxState
         clients.get( data.client_id ).send( "SyncDamage", data );
       });
 
+      server.events.on("SyncShields", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
+        trace("Syncing shields: server side");
+        clients.get( data.client_id ).send( "SyncShields", data );
+      });
+
+      server.events.on("SyncEnemy", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
+        trace("Syncing shields: server side");
+        clients.get( data.client_id ).send( "SyncEnemy", data );
+      });
+
       server.events.on( "Shoot", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
       	server.broadcast( "Shoot", data );
       });
@@ -114,6 +124,10 @@ class ConnectState extends FlxState
       server.events.on("CreateEnemy", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
         server.broadcast( "CreateEnemy", data );
       });    
+
+      server.events.on("MoveShields", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
+        server.broadcast( "MoveShields", data );
+      });
 
       server.start();
     }
