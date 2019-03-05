@@ -100,7 +100,7 @@ class PlayState extends FlxState
   	return Math.max( 0.1, Math.min( 1, (FlxG.width - to.getPosition().distanceTo( player.getPosition() )) / FlxG.width ));
   }
 
-  function create_enemy( i:Int, percent:Float = 0 ) {
+  function create_enemy( i:Int, percent:Float = 0, backward:Bool = false ) {
   	var e = new Enemy(32 - i * 32, -200 + i  * 32, AssetPaths.enemy__png);
   	// right now loop index is used for spawn location, and for passing to other clients
   	e.index = i;
@@ -122,8 +122,9 @@ class PlayState extends FlxState
   	front.add(e);
   	if ( percent != 0 ) {
   		e.tween.percent = percent;
-  	}
-  	trace( "[CLIENT] Synced enemy! ", percent, e.tween.percent, Date.now().toString() );
+  		e.tween.backward = backward;
+   	}
+  	trace( "[ CLIENT ] Synced enemy! ", e.tween.percent, Date.now().toString() );
   	return e;
 	}
 
@@ -560,8 +561,8 @@ class PlayState extends FlxState
 					}
 				}
 			  for (e in enemies) {
-			  	client.send("SyncEnemy", { client_id: data.client_id, i: e.index, percent: e.tween.percent });
-	  	  	trace( "[HOST] Synced enemy! ", e.tween.percent, Date.now().toString() );
+			  	client.send("SyncEnemy", { client_id: data.client_id, i: e.index, percent: e.tween.percent, backward: e.tween.backward });
+	  	  	trace( "[ HOST ] Synced enemy! ", e.tween.percent, Date.now().toString() );
 			  }
 	    	trace('[ CLIENT ] New player joined');
     	} else {
@@ -602,7 +603,7 @@ class PlayState extends FlxState
     });
 
     client.events.on( "SyncEnemy", function ( data ) {
-  		create_enemy( data.i, data.percent );
+  		create_enemy( data.i, data.percent, data.backward );
     });
 
     // note: different approach used here: command goes THROUGh the server before it even gets runs by the sender
