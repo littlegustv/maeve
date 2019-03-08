@@ -66,14 +66,23 @@ class Mobile extends FlxNestedSprite {
 	public function new(x:Float, y:Float, graphic:FlxGraphicAsset) {
 		super(x, y);
 		this.loadGraphic(graphic, true, 16, 16);
-		this.animation.add("right", [0, 1, 2, 3], 9, true);
-		this.animation.add("up", [4, 5, 6, 7], 9, true);
-		this.animation.add("left", [8, 9, 10, 11], 9, true);
-		this.animation.add("down", [12, 13, 14, 15], 9, true);
+		// this.animation.add("right", [0, 1, 2, 3], 9, true);
+		// this.animation.add("up", [4, 5, 6, 7], 9, true);
+		// this.animation.add("left", [8, 9, 10, 11], 9, true);
+		// this.animation.add("down", [12, 13, 14, 15], 9, true);
+		// this.animation.add("idle-right", [0], 6, true);		
+		// this.animation.add("idle-up", [4], 6, true);		
+		// this.animation.add("idle-left", [8], 6, true);		
+		// this.animation.add("idle-down", [12], 6, true);		
+		this.animation.add("right", [1, 2], 9, true);
+		this.animation.add("up", [4, 5], 9, true);
+		this.animation.add("left", [7, 8], 9, true);
+		this.animation.add("down", [10, 11], 9, true);
 		this.animation.add("idle-right", [0], 6, true);		
-		this.animation.add("idle-up", [4], 6, true);		
-		this.animation.add("idle-left", [8], 6, true);		
-		this.animation.add("idle-down", [12], 6, true);		
+		this.animation.add("idle-up", [3], 6, true);		
+		this.animation.add("idle-left", [6], 6, true);		
+		this.animation.add("idle-down", [9], 6, true);		
+		
 		this.move( "right" );
 		this.move( "idle" );
 	}
