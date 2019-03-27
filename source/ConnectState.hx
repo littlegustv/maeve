@@ -129,6 +129,10 @@ class ConnectState extends FlxState
         server.broadcast( "MoveShields", data );
       });
 
+      server.events.on("UpdateShip", function ( data:Dynamic, sender:mphx.connection.IConnection ) {
+        server.broadcast( "UpdateShip", data );
+      });
+
       server.start();
     }
   #end
