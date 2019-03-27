@@ -46,6 +46,7 @@ class PlayState extends FlxState
   var frames_since_update:Int = 0;
 
 	var console:Console;
+	var prev_control_scheme:String = "movement";
 	var control_scheme:String = "movement";
 	var shooting_angle:Float = 0;
 	var shields_index:Int = 0;
@@ -282,6 +283,33 @@ class PlayState extends FlxState
 				client.send("Shoot", { client_id: player.client_id, x: console.weapon.x + console.weapon.origin.x - 2, y: console.weapon.y + console.weapon.origin.y - 2, angle: shooting_angle });
 			}
 
+		#end
+	}
+
+	function do_settings_controls ( elapsed:Float ) {
+		#if (desktop || web)
+			if ( FlxG.keys.justPressed.UP ) {
+				trace( 'up in settings' );
+			}
+			if ( FlxG.keys.justPressed.DOWN ) {
+				trace( 'down in settings' );
+			}
+		#end
+	}
+
+	function do_general_controls( elapsed:Float ) {
+		#if (desktop || web)
+			if ( FlxG.keys.justPressed.ESCAPE ) {
+				if ( control_scheme == "settings" ) {
+					trace( 'disabled settings' );
+					control_scheme = prev_control_scheme;
+				}
+				else {
+					trace( 'enabled settings' );
+					prev_control_scheme == control_scheme;
+					control_scheme = "settings";
+				}
+			}
 		#end
 	}
 
@@ -651,6 +679,8 @@ class PlayState extends FlxState
 
 		player.velocity.set(0, 0);
 
+		do_general_controls( elapsed );
+
 		if ( control_scheme == "movement" ) {
 			
 			do_movement_controls( elapsed );
@@ -663,6 +693,9 @@ class PlayState extends FlxState
 
 			do_shields_controls( elapsed );
 
+		} else if ( control_scheme == "settings" ) {
+
+			do_settings_controls( elapsed );
 		}
 
 		FlxG.collide( player, players, function ( player, enemy ) {
