@@ -47,7 +47,7 @@
     <property name="angle" type="int" value="90"/>
    </properties>
   </object>
-  <object id="21" name="Weapons" type="Console" x="224" y="80" width="16" height="16">
+  <object id="21" name="Flight" type="Console" x="224" y="96" width="16" height="16">
    <properties>
     <property name="angle" type="int" value="-90"/>
    </properties>
@@ -86,7 +86,7 @@
     <property name="angle" type="int" value="180"/>
    </properties>
   </object>
-  <object id="42" name="Weapons" type="Console" x="272" y="80" width="16" height="16">
+  <object id="42" name="Flight" type="Console" x="272" y="96" width="16" height="16">
    <properties>
     <property name="angle" type="int" value="-90"/>
    </properties>

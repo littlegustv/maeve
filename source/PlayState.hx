@@ -13,6 +13,7 @@ import flixel.text.FlxText;
 import flixel.FlxSprite;
 import flixel.FlxG;
 import flixel.FlxObject;
+import flixel.FlxCamera;
 import flixel.group.FlxGroup;
 import flixel.util.FlxColor;
 import flixel.math.FlxPoint;
@@ -64,6 +65,11 @@ class PlayState extends FlxState
 	var lights:FlxTypedGroup<FlxSprite>;
 	var enemies:FlxTypedGroup<Enemy>;
   var hitboxes:FlxTypedGroup<Hitbox>;
+  
+  var inside:FlxGroup;
+  var outside:FlxGroup;
+  
+  var ship:FlxSprite;
   
   var map:TiledMap;
   var walls:FlxTilemap;
@@ -120,12 +126,12 @@ class PlayState extends FlxState
   			p.angle = 90;
   			p.velocity.set( 0, 200 );
   			enemy_projectiles.add( p );
-  			front.add( p );
+  			outside.add( p );
   			FlxG.sound.play( AssetPaths.shoot__wav, volume(p) );
 			}
 		});
   	enemies.add(e);
-  	front.add(e);
+  	outside.add(e);
   	if ( percent != 0 ) {
   		e.tween.percent = percent;
   		e.tween.backward = backward;
@@ -163,14 +169,17 @@ class PlayState extends FlxState
 						this.console = console;
 						this.console.user = player;
 						if ( control_scheme == "weapons" ) {
+							inside.visible = false;
+							outside.visible = true;
+							FlxG.camera.follow( ship );
 							shooting_angle = FlxAngle.TO_RAD * console.weapon.angle;							
 							FlxTween.tween( FlxG.camera, { zoom: 0.5 }, 0.25);
-							FlxTween.tween( FlxG.camera.targetOffset, { 
-								x: Math.cos( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 2, 
-								y: Math.sin( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 2 }, 
-								0.25, { onComplete: function (tween:FlxTween) {
-								}
-							});
+							// FlxTween.tween( FlxG.camera.targetOffset, { 
+							// 	x: Math.cos( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 2, 
+							// 	y: Math.sin( FlxAngle.TO_RAD * console.angle ) * FlxG.width / 2 }, 
+							// 	0.25, { onComplete: function (tween:FlxTween) {
+							// 	}
+							// });
 						} else if ( control_scheme == "shields" ) {
 							FlxTween.tween( FlxG.camera, { zoom: 0.25 }, 0.25);
 							var dx = active_shields.width / 2 - player.x;
@@ -179,6 +188,11 @@ class PlayState extends FlxState
 							do_active_shields( 0 );
 							var d:Dynamic = { client_id: player.client_id, move: 0 };
 							client.send( "MoveShields" , d );
+						} else if ( control_scheme == "flight" ) {
+							inside.visible = false;
+							outside.visible = true;
+							FlxTween.tween( FlxG.camera, { zoom: 0.5 }, 0.25);
+							FlxG.camera.follow( ship );							
 						}
 						player.setPosition( 
 							2 + round( console.x - 16 * Math.cos( FlxAngle.TO_RAD * console.angle), 16 ), 
@@ -224,6 +238,42 @@ class PlayState extends FlxState
 		}
 	}
 
+	function do_flight_controls ( elapsed:Float ) {
+		#if (desktop || web)
+			var oldx = ship.velocity.x;
+			var oldy = ship.velocity.y;
+			if ( FlxG.keys.pressed.UP || FlxG.keys.pressed.W ) {
+				ship.velocity.set( 0, -150 );				
+			} else if ( FlxG.keys.pressed.DOWN || FlxG.keys.pressed.S ) {
+				ship.velocity.set( 0, 150 );
+			} else if ( FlxG.keys.pressed.RIGHT || FlxG.keys.pressed.D ) {
+				ship.velocity.set( 150, 0 );
+			} else if ( FlxG.keys.pressed.LEFT || FlxG.keys.pressed.A ) {
+				ship.velocity.set( -150, 0 );
+			} else {
+				ship.velocity.set( 0, 0 );
+				// player.move('idle');
+			}
+			if ( ship.velocity.x != oldx || ship.velocity.y != oldy ) {
+				client.send( "UpdateShip", { client_id: player.client_id, x: ship.x, y: ship.y, velocity: {x: ship.velocity.x, y: ship.velocity.y }} );
+			}
+			// fix me: client.send
+
+			if ( FlxG.keys.justPressed.F ) {
+				control_scheme = "movement";
+				inside.visible = true;
+				outside.visible = false;
+				FlxG.camera.follow( player );
+				FlxTween.tween( FlxG.camera, { zoom: 1 },  0.25 );
+
+				var d:Dynamic = player.data();
+				d.console_uid = console.uid;
+				console.user = null;
+				client.send("UnStation", d);
+			}
+		#end		
+	}
+
 	function do_shields_controls ( elapsed:Float ) {
 		#if (desktop || web)
 			if ( FlxG.keys.justPressed.F ) {
@@ -261,16 +311,19 @@ class PlayState extends FlxState
 		#if (desktop || web)
 			if ( FlxG.keys.justPressed.F ) {
 				control_scheme = "movement";
+				inside.visible = true;
+				outside.visible = false;
+				FlxG.camera.follow( player );
 				var d:Dynamic = player.data();
 				d.console_uid = console.uid;
 				console.user = null;
 				client.send("UnStation", d);
-				FlxTween.tween( FlxG.camera.targetOffset, { 
-					x: 0, 
-					y: 0 },
-					0.25, { onComplete: function (tween:FlxTween) {
-					}
-				});
+				// FlxTween.tween( FlxG.camera.targetOffset, { 
+				// 	x: 0, 
+				// 	y: 0 },
+				// 	0.25, { onComplete: function (tween:FlxTween) {
+				// 	}
+				// });
 				FlxTween.tween( FlxG.camera, { zoom: 1 },  0.25 );
 			}
 
@@ -283,8 +336,8 @@ class PlayState extends FlxState
 			console.weapon.angle = FlxAngle.TO_DEG * shooting_angle;
 
 			if ( FlxG.keys.justPressed.SPACE ) {
-				shoot( console.weapon.x + console.weapon.origin.x - 2, console.weapon.y + console.weapon.origin.y - 2, shooting_angle );
-				client.send("Shoot", { client_id: player.client_id, x: console.weapon.x + console.weapon.origin.x - 2, y: console.weapon.y + console.weapon.origin.y - 2, angle: shooting_angle });
+				shoot( ship.x + ship.origin.x - 2, ship.y + ship.origin.y - 2, shooting_angle );
+				client.send("Shoot", { client_id: player.client_id, x: ship.x + ship.origin.x - 2, y: ship.y + ship.origin.y - 2, angle: shooting_angle });
 			}
 
 		#end
@@ -342,7 +395,7 @@ class PlayState extends FlxState
        front.remove( explosion );
        explosion.destroy();
     }
-		front.add( explosion );
+		outside.add( explosion );
 	}
 
 	function load_objects( map:TiledMap ) {
@@ -363,7 +416,7 @@ class PlayState extends FlxState
 	    		var offsety = objects[i].y + 16 * Math.sin(FlxAngle.TO_RAD * theta) * j - 8;
 	    		var door = new FlxSprite(offsetx, offsety, AssetPaths.door__png);
 	    		door.angle = theta;
-	    		add(door);
+	    		inside.add(door);
 	    		// FIX ME: I've added two overlapping hitboxes, one for each side of the door - is there a better way?
 	    		var hitbox = new Hitbox(objects[i].x - 16, objects[i].y - 16, 32, 32);
 	    		hitbox.callback = function () {
@@ -404,6 +457,13 @@ class PlayState extends FlxState
     			console.uid = objects[i].type + i;
     			console.angle = Std.parseInt( objects[i].properties.angle );
     			console.type = "shields";
+    			consoles.add( console );
+    			front.add( console );
+    		} else if ( objects[i].name == "Flight" ) {
+    			var console = new Console( objects[i].x - 4, objects[i].y - 4, AssetPaths.flightconsole__png );
+    			console.uid = objects[i].type + i;
+    			console.angle = Std.parseInt( objects[i].properties.angle );
+    			console.type = "flight";
     			consoles.add( console );
     			front.add( console );
     		}
@@ -455,6 +515,16 @@ class PlayState extends FlxState
 	  enemy_projectiles = new FlxTypedGroup<FlxSprite>();
 	  enemies = new FlxTypedGroup<Enemy>();
 	  lights = new FlxTypedGroup<FlxSprite>();
+	  
+
+	  // outside_camera = new FlxCamera();
+	  outside = new FlxGroup();
+	  inside = new FlxGroup();
+	  outside.visible = false;
+	  // outside.cameras = [outside_camera];
+
+		ship = new FlxSprite( 0, 0, AssetPaths.ship__png );
+		outside.add( ship );
 
 	  /*
 	  	These are the groups used to ORDER and DRAW sprites
@@ -471,52 +541,55 @@ class PlayState extends FlxState
 
 		var wings = new FlxTilemap();
 		wings.loadMapFromArray( cast( map.getLayer("Wings"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
-		add(wings);
+		inside.add(wings);
 
 		var details = new FlxTilemap();
 		details.loadMapFromArray( cast( map.getLayer("Details"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
-		add(details);
+		inside.add(details);
 
 		var ground = new FlxTilemap();
 		ground.loadMapFromArray( cast( map.getLayer("Ground"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
-		add(ground);
+		inside.add(ground);
 
-		add(back);
+		inside.add(back);
 
     load_objects( map );
 
 		walls = new FlxTilemap();
 		walls.loadMapFromArray( cast( map.getLayer("Solids"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
-		add(walls);
+		inside.add(walls);
 
 		damage = new FlxTilemap();
 		// just gets the dimensions, really, since this layer should be empty
 		damage.loadMapFromArray( cast( map.getLayer("Damage"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.damage__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
-		add(damage);
+		inside.add(damage);
 
 		passive_shields = new FlxTilemap();
 		passive_shields.loadMapFromArray( cast( map.getLayer("Shields"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.tileset__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
 		passive_shields.alpha = 0.5;
-		add(passive_shields);
+		inside.add(passive_shields);
 
 		active_shields = new FlxTilemap();
 		active_shields.loadMapFromArray( cast( map.getLayer("Damage"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.shields__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
-		add(active_shields);
+		inside.add(active_shields);
 
 		player = new Mobile(176 + FlxG.random.int( -4, 4), 256 + FlxG.random.int( -4, 4), "assets/images/" + FlxG.random.getObject(["person.png", "person2.png"]));
 		player.move('idle');
 		player.setHitBox();
 
-		add(player);
+		inside.add(player);
 		mobiles.add(player);
 
 		FlxG.camera.follow(player);
 
 		players = new FlxTypedGroup();
-		add(players);
+		inside.add(players);
     
-    add(projectiles);
-		add(front);
+    outside.add(projectiles);
+		inside.add(front);
+
+		add( outside );
+		add( inside );
 
 		add( this.settings_group );
 		this.settings = new SettingsController( this.settings_group );
@@ -537,6 +610,13 @@ class PlayState extends FlxState
 		client.events.on( "MoveShields" , function ( data ) {
     	if (player.client_id != data.client_id) {
     		do_active_shields( data.move );
+    	}
+		});
+
+		client.events.on( "UpdateShip" , function ( data ) {
+    	if (player.client_id != data.client_id) {
+    		ship.velocity.set( data.velocity.x, data.velocity.y );
+    		ship.setPosition( data.x, data.y );
     	}
 		});
 
@@ -597,6 +677,7 @@ class PlayState extends FlxState
 						trace(' syncing shields ');
 						client.send( "SyncShields",  { client_id: data.client_id, move: shields_index } );
 					}
+					client.send( "UpdateShip", { client_id: player.client_id, x: ship.x, y: ship.y, velocity: { x: ship.velocity.x, y: ship.velocity.y }});
 				}
 			  for (e in enemies) {
 			  	client.send("SyncEnemy", { client_id: data.client_id, i: e.index, percent: e.tween.percent, backward: e.tween.backward });
@@ -705,6 +786,11 @@ class PlayState extends FlxState
 		} else if ( control_scheme == "settings" ) {
 
 			do_settings_controls( elapsed );
+
+		} else if ( control_scheme == "flight" ) {
+
+			do_flight_controls( elapsed );
+
 		}
 
 		FlxG.collide( player, players, function ( player, enemy ) {
@@ -730,11 +816,11 @@ class PlayState extends FlxState
 
 		// fix me: look into this: https://github.com/HaxeFlixel/flixel-demos/blob/master/Features/SetTileProperties/source/PlayState.hx
 		//  ( as preferred way of handling this? )
-		FlxG.collide( walls, enemy_projectiles, function ( tilemap, projectile ) {
-			var x = Math.round(( projectile.x - walls.x ) / 16 );
-			var y = Math.round(( projectile.y - walls.y ) / 16 );
+		FlxG.collide( ship, enemy_projectiles, function ( tilemap, projectile ) {
+			// var x = Math.round(( projectile.x - walls.x ) / 16 );
+			// var y = Math.round(( projectile.y - walls.y ) / 16 );
 
-			damage_walls( x, y );
+			// damage_walls( x, y );
 
 			do_explosion( projectile.x, projectile.y );
 			projectile.kill();
