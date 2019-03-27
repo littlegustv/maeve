@@ -35,10 +35,14 @@ import flixel.tile.FlxTilemap;
 import flixel.tile.FlxBaseTilemap;
 
 import Objects;
+import Settings;
 
 class PlayState extends FlxState
 {
 	var player:Mobile;
+
+	var settings_group:FlxGroup;
+	var settings:SettingsController;
 
 	var hosting:Bool = false;
 	var clients:Map<String, Mobile> = new Map();
@@ -301,11 +305,11 @@ class PlayState extends FlxState
 		#if (desktop || web)
 			if ( FlxG.keys.justPressed.ESCAPE ) {
 				if ( control_scheme == "settings" ) {
-					trace( 'disabled settings' );
+					settings.disableMenu( settings_group );
 					control_scheme = prev_control_scheme;
 				}
 				else {
-					trace( 'enabled settings' );
+					settings.enableMenu( settings_group );
 					prev_control_scheme == control_scheme;
 					control_scheme = "settings";
 				}
@@ -423,6 +427,9 @@ class PlayState extends FlxState
   	super();
   	this.client = client;
   	this.hosting = hosting;
+
+	trace( 'create settings_group' );
+	this.settings_group = new FlxGroup();
   }
 
 	override public function create():Void
@@ -511,6 +518,13 @@ class PlayState extends FlxState
     
     add(projectiles);
 		add(front);
+
+		trace( 'add settings_group' );
+		add( this.settings_group );
+
+		trace( 'init settingsController' );
+		this.settings = new SettingsController( this.settings_group );
+		trace( settings_group.members.length, settings_group.visible );
 
 		spawn_wave();
 
