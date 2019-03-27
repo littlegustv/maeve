@@ -293,10 +293,10 @@ class PlayState extends FlxState
 	function do_settings_controls ( elapsed:Float ) {
 		#if (desktop || web)
 			if ( FlxG.keys.justPressed.UP ) {
-				trace( 'up in settings' );
+				this.settings.increaseVolume();
 			}
 			if ( FlxG.keys.justPressed.DOWN ) {
-				trace( 'down in settings' );
+				this.settings.decreaseVolume();
 			}
 		#end
 	}
@@ -428,7 +428,6 @@ class PlayState extends FlxState
   	this.client = client;
   	this.hosting = hosting;
 
-	trace( 'create settings_group' );
 	this.settings_group = new FlxGroup();
   }
 
@@ -519,12 +518,8 @@ class PlayState extends FlxState
     add(projectiles);
 		add(front);
 
-		trace( 'add settings_group' );
 		add( this.settings_group );
-
-		trace( 'init settingsController' );
 		this.settings = new SettingsController( this.settings_group );
-		trace( settings_group.members.length, settings_group.visible );
 
 		spawn_wave();
 
