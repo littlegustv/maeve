@@ -154,6 +154,10 @@ class PlayState extends FlxState
 				player.move('idle');
 			}
 
+			if ( FlxG.keys.justPressed.SPACE ) {
+				player.jump();
+			} 
+
 			if ( FlxG.keys.justPressed.ONE ) {
 		  	client.send( "Alert", { client_id: player.client_id, color: FlxColor.BLUE } );
 			} else if ( FlxG.keys.justPressed.TWO ) {
@@ -573,7 +577,7 @@ class PlayState extends FlxState
 		active_shields.loadMapFromArray( cast( map.getLayer("Damage"), TiledTileLayer ).tileArray, map.width, map.height, AssetPaths.shields__png, map.tileWidth, map.tileHeight, FlxTilemapAutoTiling.OFF, 1, 1, 1);
 		inside.add(active_shields);
 
-		player = new Mobile(176 + FlxG.random.int( -4, 4), 256 + FlxG.random.int( -4, 4), "assets/images/" + FlxG.random.getObject(["person.png", "person2.png"]));
+		player = new Mobile(176 + FlxG.random.int( -4, 4), 256 + FlxG.random.int( -4, 4), AssetPaths.ghost__png );
 		player.move('idle');
 		player.setHitBox();
 
@@ -653,7 +657,7 @@ class PlayState extends FlxState
 
     client.events.on("Join", function (data) {
     	if (player.client_id != data.client_id) {
-				var m = new Mobile(data.x, data.y, "assets/images/" + FlxG.random.getObject(["person.png", "person2.png"]));				
+				var m = new Mobile(data.x, data.y, AssetPaths.ghost__png );				
 				m.setHitBox();
 				m.client_id = data.client_id;
 				clients.set(m.client_id, m);
@@ -696,7 +700,7 @@ class PlayState extends FlxState
 	    		// trace('[ CLIENT ] Received player update');
 	    		p.sync(data);
 	    	} else {
-	    		var m = new Mobile(data.x, data.y, "assets/images/" + FlxG.random.getObject(["person.png", "person2.png"]));
+	    		var m = new Mobile( data.x, data.y, AssetPaths.ghost__png );
 	    		m.setHitBox();
 					m.client_id = data.client_id;
 					clients.set(m.client_id, m);

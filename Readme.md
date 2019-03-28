@@ -4,8 +4,8 @@ Follow the instructions <a href="https://haxe.org/videos/tutorials/haxeflixel-tu
 (that works without specifying any library version numbers)
 
 After installing haxe and haxelib:
- - haxe install openfl
- - haxe git mphx https://github.com/galoyo/mphx.git
+ - haxelib install openfl
+ - haxelib git mphx https://github.com/galoyo/mphx.git
  
 Install Visual Studio Community 2017, adding the following components:
  - Under Workloads, check "Desktop development with C++"
